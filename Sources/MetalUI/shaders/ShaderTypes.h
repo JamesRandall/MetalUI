@@ -61,16 +61,5 @@ typedef struct
     float timeDelta;
 } InstanceUniforms;
 
-typedef struct
-{
-    matrix_float4x4 projectionMatrix;
-} GuiUniforms;
-
-typedef struct {
-    simd_float4 color;
-    simd_float2 position;
-    simd_float2 size;
-} GuiInstanceData;
-
 #endif /* ShaderTypes_h */
 

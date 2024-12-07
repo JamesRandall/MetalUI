@@ -44,9 +44,43 @@ public class GuiRenderer {
     
     private var projectionMatrix: float4x4 = matrix_identity_float4x4
     
+    /*static func listResourcesInBundle() {
+        guard let resourcePath = Bundle.module.resourcePath else {
+            print("Failed to locate resource path in Bundle.module")
+            return
+        }
+
+        do {
+            let fileManager = FileManager.default
+            let resources = try fileManager.contentsOfDirectory(atPath: resourcePath)
+            print("Resources in Bundle.module:")
+            for resource in resources {
+                print(resource)
+            }
+        } catch {
+            print("Error listing resources: \(error)")
+        }
+    }*/
+    
+    static func loadShaderLibrary(device: MTLDevice) -> MTLLibrary? {
+        //listResourcesInBundle()
+        
+        guard let shaderURL = Bundle.module.url(forResource: "default", withExtension: "metallib") else {
+            print("Failed to find metallib")
+            return nil
+        }
+        do {
+            let library = try device.makeLibrary(URL: shaderURL)
+            return library
+        } catch {
+            print("Failed to load Metal library: \(error)")
+            return nil
+        }
+    }
+    
     @MainActor
     public init?(device: MTLDevice, metalKitView: MTKView) {
-        let library = device.makeDefaultLibrary()
+        let library = GuiRenderer.loadShaderLibrary(device: device) //device.makeDefaultLibrary()
         guard
             let vertexFunction = library?.makeFunction(name: "guiVertexShader"),
             let fragmentFunction = library?.makeFunction(name: "guiFragmentShader")

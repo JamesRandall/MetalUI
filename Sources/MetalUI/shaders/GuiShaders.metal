@@ -38,6 +38,17 @@ typedef struct {
     float3 position [[attribute(0)]];
 } GuiVertex;
 
+typedef struct
+{
+    matrix_float4x4 projectionMatrix;
+} GuiUniforms;
+
+typedef struct {
+    simd_float4 color;
+    simd_float2 position;
+    simd_float2 size;
+} GuiInstanceData;
+
 // Vertex shader
 vertex GuiOut guiVertexShader(GuiVertex in [[stage_in]],
                               constant GuiUniforms& uniforms [[buffer(1)]],
