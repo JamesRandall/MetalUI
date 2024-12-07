@@ -22,8 +22,6 @@ public struct Text : View {
 public struct Panel : View {
     let children : [any View]
     
-    @ViewMetadata var metadata: LayoutMetadata = LayoutMetadata.empty()
-        
     public init(@ViewBuilder content: () -> [any View]) {
         self.children = content()
     }

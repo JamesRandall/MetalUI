@@ -12,7 +12,6 @@ private let alignedUniformsSize = (MemoryLayout<GuiUniforms>.size + 0xFF) & -0x1
 // TODO: this needs to be based on the number of GUI objects
 private let maxBuffersInFlight = 256
 
-
 extension float4x4 {
     init(scaling: SIMD3<Float>) {
         self.init(SIMD4<Float>(scaling.x, 0, 0, 0),
@@ -93,18 +92,19 @@ public class GuiRenderer {
         self.depthStencilState = dss
         
         let vertexDescriptor = MTLVertexDescriptor()
-
-        // Position attribute (attribute index 0)
-        vertexDescriptor.attributes[0].format = .float3
+        
+        vertexDescriptor.attributes[0].format = MTLVertexFormat.float3
         vertexDescriptor.attributes[0].offset = 0
         vertexDescriptor.attributes[0].bufferIndex = 0
+
+        vertexDescriptor.attributes[1].format = MTLVertexFormat.float2
+        vertexDescriptor.attributes[1].offset = MemoryLayout<simd_float3>.stride
+        vertexDescriptor.attributes[1].bufferIndex = 0
         
         vertexDescriptor.layouts[0].stride = MemoryLayout<GuiVertex>.stride
         vertexDescriptor.layouts[0].stepRate = 1
         vertexDescriptor.layouts[0].stepFunction = .perVertex
-                
-        // Configure the layout of the buffer at index 0
-        
+
 
         // Set up the render pipeline descriptor
         let pipelineDescriptor = MTLRenderPipelineDescriptor()
@@ -178,16 +178,17 @@ public class GuiRenderer {
     
     struct GuiVertex {
         var position: simd_float3
+        var texCoord: simd_float2
     }
     
     class func makeRectangleVertexBuffer(device: MTLDevice) -> MTLBuffer? {
         let vertices : [GuiVertex] = [
-            GuiVertex(position:simd_float3(0.0, 1.0, 0.0)), // Top left vertex
-            GuiVertex(position:simd_float3(0.0, 0.0, 0.0)),  // Bottom left vertex
-            GuiVertex(position:simd_float3(1.0, 0.0, 0.0)),   // Bottom right vertex
-            GuiVertex(position:simd_float3(0.0, 1.0, 0.0)), // Top left vertex
-            GuiVertex(position:simd_float3(1.0, 1.0, 0.0)), // Top right vertex
-            GuiVertex(position:simd_float3(1.0, 0.0, 0.0))
+            GuiVertex(position:simd_float3(0.0, 1.0, 0.0), texCoord:simd_float2(0, 1)), // Top left vertex
+            GuiVertex(position:simd_float3(0.0, 0.0, 0.0), texCoord:simd_float2(0, 0)),  // Bottom left vertex
+            GuiVertex(position:simd_float3(1.0, 0.0, 0.0), texCoord:simd_float2(1, 0)),   // Bottom right vertex
+            GuiVertex(position:simd_float3(0.0, 1.0, 0.0), texCoord:simd_float2(0, 1)), // Top left vertex
+            GuiVertex(position:simd_float3(1.0, 1.0, 0.0), texCoord:simd_float2(1, 1)), // Top right vertex
+            GuiVertex(position:simd_float3(1.0, 0.0, 0.0), texCoord:simd_float2(1, 0)) // Bottom right vertex
         ]
         
         let vertexBuffer = device.makeBuffer(bytes: vertices,

@@ -83,7 +83,7 @@ internal class GuiViewBuilderBase {
     }
     
     internal func rectangleInstanceData(position: simd_float2, size: simd_float2, color: simd_float4) -> GuiInstanceData {
-        GuiInstanceData(color: color, position: position, size: size)
+        GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero)
     }
     
     func getLayout() -> RenderLayout {

@@ -11,4 +11,7 @@ struct GuiInstanceData {
     var color: simd_float4
     var position: simd_float2
     var size: simd_float2
+    var texTopLeft: simd_float2
+    var texBottomRight: simd_float2
+    var shouldTexture: simd_int1
 }
