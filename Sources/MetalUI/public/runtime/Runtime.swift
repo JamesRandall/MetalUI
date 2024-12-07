@@ -1,0 +1,77 @@
+//
+//  GuiRuntime.swift
+//  starship-tactics
+//
+//  Created by James Randall on 05/12/2024.
+//
+
+import Metal
+import simd
+
+nonisolated(unsafe) var runtime: Runtime?
+
+public class Runtime {
+    var rootView : any View
+    var notificationHandler : (() -> ()) = { }
+    var instanceBuffer : MTLBuffer?
+    var instanceCount = -1
+    var projectionMatrix : float4x4 = matrix_identity_float4x4
+    private var _currentView : (any View)?
+    private var _updateRequired = false
+    
+    //private var _builderStack : [View] = []
+    
+    public init(rootView : any View) {
+        self.rootView = rootView
+        runtime = self
+    }
+    
+    @MainActor
+    func render(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
+        if self.instanceBuffer == nil {
+            self.buildRenderData(renderEncoder: renderEncoder, worldProjection: worldProjection, size: size)
+        }
+        guard let instanceBuffer = self.instanceBuffer else { return }
+        if self._updateRequired {
+            self._updateRequired = false
+        }
+        
+        renderEncoder.setVertexBuffer(instanceBuffer, offset: 0, index: 2)
+        renderEncoder.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6, instanceCount: instanceCount)
+    }
+    
+    func requestRenderUpdate() {
+        self._updateRequired = true
+        //var newView = self.rootView.body
+    }
+    
+    @MainActor
+    func updateIfRequired(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
+        self.projectionMatrix = worldProjection
+        self.buildRenderData(renderEncoder: renderEncoder, worldProjection: worldProjection, size: size)
+    }
+    
+    @MainActor
+    private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
+        self.projectionMatrix = worldProjection
+        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size)
+        self._currentView = buildTree(view: rootView.body)
+        guard let currentView = self._currentView else { return }
+        renderTree(currentView, builder: builder)
+        //currentView.render(runtime: self, builder: builder)
+        if builder.instanceData.isEmpty { return }
+        guard let ib = renderEncoder.device.makeBuffer(bytes: builder.instanceData, length: MemoryLayout<GuiInstanceData>.stride * builder.instanceData.count, options: .storageModeShared) else { return }
+        self.instanceCount = builder.instanceData.count
+        self.instanceBuffer = ib
+    }
+    
+    private func nullNotification() {
+        
+    }
+    
+    private func build() {
+        
+    }
+}
+
+
