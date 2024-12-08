@@ -17,7 +17,11 @@ internal class GuiViewBuilderBase {
     
     init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
         self.worldProjection = worldProjection
-        layoutStack = [RenderLayout(position: .zero, size: nil, parentSize: size, autoSizeMode: .toParent)]
+        
+        var startingLayout = RenderLayout.zero
+        startingLayout.parentSize = size
+        
+        layoutStack = [startingLayout]
         _currentProperties = .zero
         self.boundsSize = size
         self.textManager = textManager
@@ -27,8 +31,8 @@ internal class GuiViewBuilderBase {
         GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero)
     }
     
-    internal func textInstanceData(text: String, position: simd_float2, color: simd_float4, fontSize: CGFloat = 22.0) -> GuiInstanceData {
-        guard let textRenderInfo = self.textManager.getRenderInfo(text: text, fontName: "System", color: color, size: fontSize) else {
+    internal func textInstanceData(text: String, position: simd_float2, color: simd_float4, fontName: String, fontSize: Float) -> GuiInstanceData {
+        guard let textRenderInfo = self.textManager.getRenderInfo(text: text, fontName: fontName, color: color, size: CGFloat(fontSize)) else {
             return GuiInstanceData.zero
         }
         
@@ -51,8 +55,9 @@ internal class GuiViewBuilderBase {
     func pushAutoSizeIfRequired(requestedSize: simd_float2) {
         let tipLayout = getLayout()
         if tipLayout.size == nil {
-            let newLayout = RenderLayout(position: tipLayout.position, size: tipLayout.autoSizeMode == .toParent ? tipLayout.parentSize : requestedSize, parentSize: tipLayout.parentSize, autoSizeMode: tipLayout.autoSizeMode)
-            layoutStack.append(newLayout)
+            var copy = tipLayout
+            copy.size = tipLayout.autoSizeMode == .toParent ? tipLayout.parentSize : requestedSize
+            layoutStack.append(copy)
         }
     }
     
@@ -69,6 +74,18 @@ internal class GuiViewBuilderBase {
     func pushLayout(size:simd_float2) {
         let tipLayout = getLayout()
         let newLayout = tipLayout.withSize(size: size)
+        layoutStack.append(newLayout)
+    }
+    
+    func pushLayout(fontName: String) {
+        let tipLayout = getLayout()
+        let newLayout = tipLayout.withFontName(fontName: fontName)
+        layoutStack.append(newLayout)
+    }
+    
+    func pushLayout(fontSize: Float) {
+        let tipLayout = getLayout()
+        let newLayout = tipLayout.withFontSize(fontSize: fontSize)
         layoutStack.append(newLayout)
     }
     
@@ -114,7 +131,7 @@ internal class GuiViewBuilderBase {
     
     func resetForChild() {
         let tipLayout = getLayout()
-        layoutStack.append(RenderLayout(position: tipLayout.position, size: nil, parentSize: tipLayout.size ?? tipLayout.parentSize, autoSizeMode: .toParent))
+        layoutStack.append(RenderLayout(position: tipLayout.position, size: nil, parentSize: tipLayout.size ?? tipLayout.parentSize, autoSizeMode: .toParent, fontName: tipLayout.fontName, fontSize: tipLayout.fontSize))
         _currentProperties = .zero
     }
     

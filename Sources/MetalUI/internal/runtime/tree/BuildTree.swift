@@ -41,6 +41,17 @@ func buildTree<V: View>(view : V) -> any View{
             builder.pushLayout(size: value)
         })
     }
+    else if let fv = view as? FontModifier {
+        let fvContent = buildTree(view: fv.content)
+        return ResolvedValueView<(String?,Float?)>(content: AnyView(fvContent), value: (fv.name,fv.size), apply: { value,builder in
+            if let name = value.0 {
+                builder.pushLayout(fontName: name)
+            }
+            if let size = value.1 {
+                builder.pushLayout(fontSize: size)
+            }
+        })
+    }
     else if let bv = view as? BackgroundModifier {
         let bvContent = buildTree(view: bv.content)
         return ResolvedValueView<simd_float4>(content: AnyView(bvContent), value: bv.background, apply: { value,builder in

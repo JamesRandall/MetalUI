@@ -14,6 +14,8 @@ protocol GuiMutater {
     func getLayoutStackSize() -> Int
     func pushLayout(position:simd_float2)
     func pushLayout(size:simd_float2)
+    func pushLayout(fontName: String)
+    func pushLayout(fontSize: Float)
     func pushAutoSizeIfRequired(requestedSize: simd_float2)
     func pushLayout(autoSizeMode: AutoSizeMode)
     func resetForChild()

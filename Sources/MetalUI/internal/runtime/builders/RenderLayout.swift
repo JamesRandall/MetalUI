@@ -16,6 +16,8 @@ struct RenderLayout {
     var size: simd_float2?
     var parentSize: simd_float2
     var autoSizeMode: AutoSizeMode
+    var fontName: String
+    var fontSize: Float
     
     func withPosition(position: simd_float2) -> RenderLayout {
         var copy = self
@@ -41,5 +43,17 @@ struct RenderLayout {
         return copy
     }
     
-    static let zero = RenderLayout(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent)
+    func withFontName(fontName: String) -> RenderLayout {
+        var copy = self
+        copy.fontName = fontName
+        return copy
+    }
+    
+    func withFontSize(fontSize: Float) -> RenderLayout {
+        var copy = self
+        copy.fontSize = fontSize
+        return copy
+    }
+    
+    static let zero = RenderLayout(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent, fontName: ".SFUI-Regular", fontSize: 18.0)
 }

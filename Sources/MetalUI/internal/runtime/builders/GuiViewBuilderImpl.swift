@@ -54,7 +54,7 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
     
     func text(text: String) {
         guard let layout = self.layoutStack.last else { return }
-        let textInstanceData = self.textInstanceData(text: text, position: layout.position, color: _currentProperties.foregroundColor, fontSize: 22.0)
+        let textInstanceData = self.textInstanceData(text: text, position: layout.position, color: _currentProperties.foregroundColor, fontName: layout.fontName, fontSize: layout.fontSize)
         self._instanceData.append(textInstanceData)
     }
     
