@@ -59,6 +59,12 @@ func buildTree<V: View>(view : V) -> any View{
             builder.mergeProperty(border: value)
         })
     }
+    else if let sc = view as? SizeToChildrenModifier {
+        let scContent = buildTree(view: sc.content)
+        return ResolvedValueView<Bool>(content: AnyView(scContent), value: true, apply: { _,builder in
+            builder.pushLayout(autoSizeMode: .toChildren)
+        })
+    }
 
     return buildTree(view: view.body)
 }

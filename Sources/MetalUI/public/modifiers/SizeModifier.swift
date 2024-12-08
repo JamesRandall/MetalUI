@@ -47,10 +47,17 @@ public extension View {
         SizeModifier(content: AnyView(self), size: simd_float2(Float(size.width), Float(size.height)))
     }
     
+    func size(_ width: Float, _ height: Float) -> some View {
+        SizeModifier(content: AnyView(self), size: simd_float2(width, height))
+    }
+    
+    func size(_ width: Double, _ height: Double) -> some View {
+        SizeModifier(content: AnyView(self), size: simd_float2(Float(width), Float(height)))
+    }
+    
     func size(_ size: simd_float2) -> some View {
         SizeModifier(content: AnyView(self), size: size)
     }
-    
     
     func size(_ binding:Published<simd_float2>.Publisher) -> some View {
         SizeModifier(content: AnyView(self), binding: binding)
