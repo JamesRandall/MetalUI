@@ -171,6 +171,7 @@ public class GuiRenderer {
         
         renderEncoder.setVertexBuffer(rectangleVertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(uniformsBuffer, offset:0, index: 1)
+        renderEncoder.setFragmentTexture(gui.textManager.texture, index: 0)
         
         gui.render(renderEncoder: renderEncoder, worldProjection: self.projectionMatrix, size: view.drawableSize.toSimd())
 

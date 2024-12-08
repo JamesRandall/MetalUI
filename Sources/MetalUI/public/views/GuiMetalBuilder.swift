@@ -27,13 +27,15 @@ protocol GuiMutater {
     
     func getRenderProperties() -> RenderProperties
     func setRenderProperties(_ renderProperties: RenderProperties)
-    func mergeProperty(color: simd_float4)
+    func mergeProperty(backgroundColor: simd_float4)
+    func mergeProperty(foregroundColor: simd_float4)
     func mergeProperty(border: BorderDescription)
     
     func fillRectangle(position:simd_float2, size: simd_float2, color: simd_float4)
     func fillRectangle()
     func border(position: simd_float2, size: simd_float2, description: BorderProperty)
     func border()
+    func text(text: String)
 }
 
 protocol GuiViewBuilder : GuiMutater {
@@ -63,10 +65,11 @@ struct BorderProperty {
 }
 
 struct RenderProperties {
-    var color: simd_float4
+    var backgroundColor : simd_float4
+    var foregroundColor : simd_float4
     var border: BorderProperty
     
-    static let zero = RenderProperties(color: .zero, border: .none)
+    static let zero = RenderProperties(backgroundColor: .zero, foregroundColor: .one, border: .none)
 }
 
 internal class GuiViewBuilderBase {
@@ -74,16 +77,33 @@ internal class GuiViewBuilderBase {
     var layoutStack: [RenderLayout]
     var _currentProperties : RenderProperties
     let boundsSize : simd_float2
+    let textManager : TextManager
     
-    init (worldProjection: float4x4, size: simd_float2) {
+    init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
         self.worldProjection = worldProjection
         layoutStack = [RenderLayout(position: .zero, size: size)]
         _currentProperties = .zero
         self.boundsSize = size
+        self.textManager = textManager
     }
     
     internal func rectangleInstanceData(position: simd_float2, size: simd_float2, color: simd_float4) -> GuiInstanceData {
         GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero)
+    }
+    
+    internal func textInstanceData(text: String, position: simd_float2, color: simd_float4, fontSize: CGFloat = 22.0) -> GuiInstanceData {
+        guard let textRenderInfo = self.textManager.getRenderInfo(text: text, fontName: "System", color: color, size: fontSize) else {
+            return GuiInstanceData.zero
+        }
+        
+        return GuiInstanceData(
+            color:.zero,
+            position: position,
+            size: textRenderInfo.rect.size.toSimd(),
+            texTopLeft: self.textManager.texTopLeft(textRenderInfo), //simd_float2(0,0),
+            texBottomRight: self.textManager.texBottomRight(textRenderInfo), // simd_float2(1,1),
+            shouldTexture: 1
+        )
     }
     
     func getLayout() -> RenderLayout {
@@ -108,8 +128,12 @@ internal class GuiViewBuilderBase {
     
     func setRenderProperties(_ renderProperties: RenderProperties) { self._currentProperties = renderProperties }
     
-    func mergeProperty(color:simd_float4) {
-        self._currentProperties.color = color
+    func mergeProperty(backgroundColor:simd_float4) {
+        self._currentProperties.backgroundColor = backgroundColor
+    }
+    
+    func mergeProperty(foregroundColor:simd_float4) {
+        self._currentProperties.foregroundColor = foregroundColor
     }
     
     @MainActor func mergeProperty(border: BorderDescription) {
@@ -163,7 +187,7 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
     
     func fillRectangle() {
         guard let layout = self.layoutStack.last else { return }
-        self.fillRectangle(position: layout.position, size: layout.size, color: self.getRenderProperties().color)
+        self.fillRectangle(position: layout.position, size: layout.size, color: self.getRenderProperties().backgroundColor)
     }
     
     func border(position: simd_float2, size: simd_float2, description: BorderProperty) {
@@ -192,6 +216,12 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         guard let layout = self.layoutStack.last else { return }
         self.border(position: layout.position, size: layout.size, description: self.getRenderProperties().border)
     }
+    
+    func text(text: String) {
+        guard let layout = self.layoutStack.last else { return }
+        let textInstanceData = self.textInstanceData(text: text, position: layout.position, color: _currentProperties.foregroundColor, fontSize: 22.0)
+        self._instanceData.append(textInstanceData)
+    }
 }
 
 
@@ -208,16 +238,20 @@ class GuiUpdater : GuiViewBuilderBase, GuiMutater {
         
     }
     
+    func text(text: String) {
+        
+    }
+    
     private let _numberOfInstances : Int
     private var _instanceBuffer : MTLBuffer
     private var _instancePointer : UnsafeMutablePointer<GuiInstanceData>
     private var _baseInstanceIndex : Int = 0
     
-    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int) {
+    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int, textManager: TextManager) {
         _instanceBuffer = instanceBuffer
         _numberOfInstances = numberOfInstances
         _instancePointer = _instanceBuffer.contents().bindMemory(to: GuiInstanceData.self, capacity: _numberOfInstances)
-        super.init(worldProjection: worldProjection, size: size)
+        super.init(worldProjection: worldProjection, size: size, textManager: textManager)
     }
     
     func setBaseInstanceIndex(_ baseIndex: Int) {

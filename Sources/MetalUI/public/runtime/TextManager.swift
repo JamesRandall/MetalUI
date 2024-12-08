@@ -8,7 +8,9 @@
 import simd
 import CoreGraphics
 import Metal
-import CoreGraphics
+import ImageIO
+import AppKit
+
 
 struct MetalText : Hashable {
     var text : String
@@ -28,17 +30,37 @@ class TextManager {
     private var _texture : MTLTexture?
     private let _fontProvider : (String,CGFloat) -> NSObject
     private let _scale : CGFloat
+    private let _device : MTLDevice
     
-    init(scale: CGFloat, fontProvider : @escaping (String,CGFloat) -> NSObject) {
+    var texture : MTLTexture? { _texture }
+    
+    init(device: MTLDevice, scale: CGFloat, fontProvider : @escaping (String,CGFloat) -> NSObject) {
         self._scale = scale
         self._fontProvider = fontProvider
+        self._device = device
     }
     
-    func getRenderInfo(device: MTLDevice, text : String, fontName : String, color : simd_float4, size : CGFloat) -> RenderedTextInfo? {
-        return getRenderInfo(device: device, metalText: MetalText(text: text, fontName: fontName, color: color, size: size))
+    func getRenderInfo(text : String, fontName : String, color : simd_float4, size : CGFloat) -> RenderedTextInfo? {
+        return getRenderInfo(metalText: MetalText(text: text, fontName: fontName, color: color, size: size))
     }
     
-    func getRenderInfo(device: MTLDevice, metalText : MetalText) -> RenderedTextInfo? {
+    func texTopLeft(_ ri: RenderedTextInfo) -> simd_float2 {
+        guard let image = _image else { return .zero }
+        return simd_float2(
+            Float(ri.rect.minX) / Float(image.width),
+            Float(ri.rect.minY) / Float(image.height)
+        )
+    }
+    
+    func texBottomRight(_ ri: RenderedTextInfo) -> simd_float2 {
+        guard let image = _image else { return .zero }
+        return simd_float2(
+            Float(ri.rect.maxX) / Float(image.width),
+            Float(ri.rect.maxY) / Float(image.height)
+        )
+    }
+    
+    func getRenderInfo(metalText : MetalText) -> RenderedTextInfo? {
         if let existingRenderInfo = _textures[metalText] {
             return existingRenderInfo
         }
@@ -57,13 +79,18 @@ class TextManager {
         if let image = self._image {
             let combinedImage = combineImages(topImage: image, bottomImage: textImage)
             self._image = combinedImage
-            createBuffer(device: device)
-            return RenderedTextInfo(textureIndex: 0, rect: CGRectMake(0, CGFloat(image.height-1), CGFloat(textImage.width), CGFloat(textImage.height)))
+            createBuffer(device: _device)
+            let renderedTextInfo = RenderedTextInfo(textureIndex: 0, rect: CGRectMake(0, CGFloat(image.height-1), CGFloat(textImage.width), CGFloat(textImage.height)))
+            _textures[metalText] = renderedTextInfo
+            return renderedTextInfo
         }
         
+        //saveDiagnosticImage(textImage)
+        
         let renderedTextInfo = RenderedTextInfo(textureIndex: 0, rect: CGRect(origin: .zero, size: CGSizeMake(CGFloat(textImage.width), CGFloat(textImage.height))))
+        _textures[metalText] = renderedTextInfo
         self._image = textImage
-        createBuffer(device: device)
+        createBuffer(device: _device)
         return renderedTextInfo
     }
     
@@ -124,8 +151,8 @@ private func createTextImage(text: String, color: CGColor, font: NSObject, scale
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
     let attributes: [NSAttributedString.Key: Any] = [
-        .font: font,
-        .foregroundColor: color
+        .font: NSFont.systemFont(ofSize: 22.0), // font,
+        .foregroundColor: NSColor(cgColor: color) ?? .black
     ]
     let attributedString = NSAttributedString(string: text, attributes: attributes)
     let size = attributedString.size()
@@ -152,11 +179,17 @@ private func createTextImage(text: String, color: CGColor, font: NSObject, scale
 
     // Draw the text
     
+    NSGraphicsContext.saveGraphicsState()
+    let graphicsContext = NSGraphicsContext(cgContext: context, flipped: true)
+    NSGraphicsContext.current = graphicsContext
+
     attributedString.draw(
-        with: CGRect(x: 0, y: 0, width: size.width, height: size.height),
+        with: CGRect(x: 0, y: 0.0, width: size.width, height: size.height),
         options: .usesLineFragmentOrigin,
         context: nil
     )
+    
+    NSGraphicsContext.restoreGraphicsState()
 
     // Create an image from the context
     return context.makeImage()
@@ -200,4 +233,33 @@ private func combineImages(topImage: CGImage, bottomImage: CGImage) -> CGImage? 
     return context.makeImage()
 }
 
+func saveDiagnosticImage(_ cgImage: CGImage) {
+    let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    let saveURL = documentsURL.appendingPathComponent("diagnostic.png")
 
+    if saveCGImageAsPNG(cgImage, to: saveURL) {
+        print("Image saved to \(saveURL.path)")
+    } else {
+        print("Failed to save the image")
+    }
+}
+
+func saveCGImageAsPNG(_ image: CGImage, to url: URL) -> Bool {
+    // Create a destination for the image
+    guard let destination = CGImageDestinationCreateWithURL(url as CFURL, kUTTypePNG, 1, nil) else {
+        print("Failed to create image destination")
+        return false
+    }
+    
+    // Add the CGImage to the destination
+    CGImageDestinationAddImage(destination, image, nil)
+    
+    // Finalize the image writing
+    if CGImageDestinationFinalize(destination) {
+        print("Image saved successfully to \(url)")
+        return true
+    } else {
+        print("Failed to save image")
+        return false
+    }
+}

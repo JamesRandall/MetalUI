@@ -38,7 +38,13 @@ func buildTree<V: View>(view : V) -> any View{
     else if let bv = view as? BackgroundModifier {
         let bvContent = buildTree(view: bv.content)
         return ResolvedValueView<simd_float4>(content: AnyView(bvContent), value: bv.background, apply: { value,builder in
-            builder.mergeProperty(color: value)
+            builder.mergeProperty(backgroundColor: value)
+        })
+    }
+    else if let bv = view as? ForegroundColorModifier {
+        let bvContent = buildTree(view: bv.content)
+        return ResolvedValueView<simd_float4>(content: AnyView(bvContent), value: bv.foreground, apply: { value,builder in
+            builder.mergeProperty(foregroundColor: value)
         })
     }
     else if let b = view as? BorderModifier {

@@ -18,6 +18,9 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder) {
         builder.fillRectangle()
         panel.children.forEach({ renderTree($0, builder: builder) })
     }
+    else if let text = view as? Text {
+        builder.text(text: text.content)
+    }
     else if let arvv = view as? AnyResolvedValueView {
         arvv.applyValue(with: builder)
         renderTree(arvv.content, builder: builder)

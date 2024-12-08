@@ -6,6 +6,7 @@
 //
 
 import Metal
+import MetalKit
 import simd
 
 nonisolated(unsafe) var runtime: Runtime?
@@ -18,11 +19,17 @@ public class Runtime {
     var projectionMatrix : float4x4 = matrix_identity_float4x4
     private var _currentView : (any View)?
     private var _updateRequired = false
+    private var _textManager : TextManager
     
     //private var _builderStack : [View] = []
     
-    public init(rootView : any View) {
+    var textManager : TextManager { _textManager }
+    
+    @MainActor
+    public init?(view: MTKView, scale:CGFloat, fontProvider: @escaping (String, CGFloat) -> NSObject, rootView : any View) {
+        guard let device = view.device else { return nil }
         self.rootView = rootView
+        self._textManager = TextManager(device: device, scale: scale, fontProvider: fontProvider)
         runtime = self
     }
     
@@ -54,7 +61,7 @@ public class Runtime {
     @MainActor
     private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
-        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size)
+        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager)
         self._currentView = buildTree(view: rootView.body)
         guard let currentView = self._currentView else { return }
         renderTree(currentView, builder: builder)
