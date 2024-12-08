@@ -146,7 +146,8 @@ public class GuiRenderer {
         let right: Float = viewWidth
         let bottom: Float = 0
         let top: Float = viewHeight
-        self.projectionMatrix = Math3D.orthographicMatrix(left: left, right: right, bottom: bottom, top: top)
+        // flipping top and bottom in the below shifts the origin from the bottom left to the top left
+        self.projectionMatrix = Math3D.orthographicMatrix(left: left, right: right, bottom: top, top: bottom)
         
         self.uniforms = GuiUniforms(projectionMatrix: self.projectionMatrix)
         self.uniformsBuffer = device.makeBuffer(

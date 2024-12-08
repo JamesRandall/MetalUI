@@ -22,6 +22,7 @@ protocol GuiMutater {
     func getLayoutStackSize() -> Int
     func pushLayout(position:simd_float2)
     func pushLayout(size:simd_float2)
+    func pushLayout(isFlipped:Bool)
     func resetForChild()
     func popLayout()
     
@@ -45,8 +46,11 @@ protocol GuiViewBuilder : GuiMutater {
 struct RenderLayout {
     var position: simd_float2
     var size: simd_float2
+    var isFlipped : Bool
     
-    static let zero = RenderLayout(position: .zero, size: .zero)
+    var resolvedPosition : simd_float2 { self.isFlipped ? simd_float2(position.x, position.y - size.y) : position }
+    
+    static let zero = RenderLayout(position: .zero, size: .zero, isFlipped: false)
 }
 
 struct BorderProperty {
@@ -81,7 +85,7 @@ internal class GuiViewBuilderBase {
     
     init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
         self.worldProjection = worldProjection
-        layoutStack = [RenderLayout(position: .zero, size: size)]
+        layoutStack = [RenderLayout(position: .zero, size: size, isFlipped: false)]
         _currentProperties = .zero
         self.boundsSize = size
         self.textManager = textManager
@@ -114,13 +118,19 @@ internal class GuiViewBuilderBase {
     
     func pushLayout(position:simd_float2) {
         let tipLayout = getLayout()
-        let newLayout = RenderLayout(position: tipLayout.position + position, size: tipLayout.size)
+        let newLayout = RenderLayout(position: tipLayout.position + position, size: tipLayout.size, isFlipped: tipLayout.isFlipped)
         layoutStack.append(newLayout)
     }
     
     func pushLayout(size:simd_float2) {
         let tipLayout = getLayout()
-        let newLayout = RenderLayout(position: tipLayout.position, size: size)
+        let newLayout = RenderLayout(position: tipLayout.position, size: size, isFlipped: tipLayout.isFlipped)
+        layoutStack.append(newLayout)
+    }
+    
+    func pushLayout(isFlipped: Bool) {
+        let tipLayout = getLayout()
+        let newLayout = RenderLayout(position: tipLayout.position, size: tipLayout.size, isFlipped: isFlipped)
         layoutStack.append(newLayout)
     }
     
@@ -166,7 +176,7 @@ internal class GuiViewBuilderBase {
     
     func resetForChild() {
         let tipLayout = getLayout()
-        layoutStack.append(RenderLayout(position: tipLayout.position, size: .zero))
+        layoutStack.append(RenderLayout(position: tipLayout.position, size: .zero, isFlipped: tipLayout.isFlipped))
         _currentProperties = .zero
     }
     

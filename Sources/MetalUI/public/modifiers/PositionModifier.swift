@@ -44,6 +44,10 @@ extension View {
         PositionModifier(content: AnyView(self), position: simd_float2(Float(position.x), Float(position.y)))
     }
     
+    public func position(_ x: Float, _ y: Float) -> some View {
+        PositionModifier(content: AnyView(self), position: simd_float2(x, y))
+    }
+    
     public func position(_ position: simd_float2) -> some View {
         PositionModifier(content: AnyView(self), position: position)
     }

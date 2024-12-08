@@ -43,6 +43,6 @@ struct ForegroundColorModifier : View, RequiresRuntimeRef {
 
 extension View {
     public func foregroundColor(_ color: simd_float4) -> some View {
-        BackgroundModifier(content: AnyView(self), color: color)
+        ForegroundColorModifier(content: AnyView(self), color: color)
     }
 }

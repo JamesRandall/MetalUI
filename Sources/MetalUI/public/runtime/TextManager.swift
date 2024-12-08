@@ -24,6 +24,10 @@ struct RenderedTextInfo {
     var rect : CGRect
 }
 
+// Things to do:
+//    1. Start with an image that is big enough to contain lots of text - saves resizing the image as we go
+//    2. Allow it to work with columns as well as rows - basically we want to pack as much text onto a texture
+//       as possible
 class TextManager {
     private var _textures : Dictionary<MetalText, RenderedTextInfo> = [:]
     private var _image : CGImage?
@@ -151,7 +155,7 @@ private func createTextImage(text: String, color: CGColor, font: NSObject, scale
     let colorSpace = CGColorSpaceCreateDeviceRGB()
     let bitmapInfo = CGImageAlphaInfo.premultipliedLast.rawValue
     let attributes: [NSAttributedString.Key: Any] = [
-        .font: NSFont.systemFont(ofSize: 22.0), // font,
+        .font: font, // NSFont.systemFont(ofSize: 22.0), // font,
         .foregroundColor: NSColor(cgColor: color) ?? .black
     ]
     let attributedString = NSAttributedString(string: text, attributes: attributes)
@@ -173,14 +177,16 @@ private func createTextImage(text: String, color: CGColor, font: NSObject, scale
         return nil
     }
 
+    context.saveGState()
     // Clear the context
     context.setFillColor(CGColor(gray: 0.0, alpha: 0.0))
     context.fill(CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
+    context.scaleBy(x: scale, y: scale)
 
     // Draw the text
     
     NSGraphicsContext.saveGraphicsState()
-    let graphicsContext = NSGraphicsContext(cgContext: context, flipped: true)
+    let graphicsContext = NSGraphicsContext(cgContext: context, flipped: false)
     NSGraphicsContext.current = graphicsContext
 
     attributedString.draw(
@@ -190,7 +196,7 @@ private func createTextImage(text: String, color: CGColor, font: NSObject, scale
     )
     
     NSGraphicsContext.restoreGraphicsState()
-
+    context.restoreGState()
     // Create an image from the context
     return context.makeImage()
 }
