@@ -19,6 +19,12 @@ func buildTree<V: View>(view : V) -> any View{
         })
         return Panel(builtContent: children)
     }
+    else if let panel = view as? VStack {
+        let children = panel.children.map({
+            ActionView(content: AnyView(buildTree(view: $0)), apply: { builder in builder.resetForChild() })
+        })
+        return VStack(builtContent: children)
+    }
     else if let text = view as? Text {
         return text
     }

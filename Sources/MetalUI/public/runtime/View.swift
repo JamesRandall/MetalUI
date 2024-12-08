@@ -13,6 +13,11 @@ public protocol View {
     var body: Self.Body { get }
 }
 
+@MainActor
+internal protocol HasChildren {
+    var children : [any View] { get }
+}
+
 extension Never: View {
     @MainActor public var body: Never {
         fatalError("Never should not have a body.")

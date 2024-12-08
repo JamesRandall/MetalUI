@@ -15,6 +15,11 @@ private class _AnyViewBoxBase {
     func boxAction(_ action: (any View) -> any View) -> any View {
         fatalError("This method must be overridden")
     }
+    
+    @discardableResult
+    func boxAction<TValue>(_ action: (any View) -> TValue) -> TValue {
+        fatalError("This method must be overridden")
+    }
 }
 
 @MainActor
@@ -35,6 +40,10 @@ private final class _AnyViewBox<V: View>: _AnyViewBoxBase {
     override func boxAction(_ action: (any View) -> any View) -> any View {
         action(content)
     }
+    
+    override func boxAction<TValue>(_ action: (any View) -> TValue) -> TValue {
+        action(content)
+    }
 }
 
 public struct AnyView: View {
@@ -53,6 +62,10 @@ public struct AnyView: View {
             action(v)
             return v
         })
+    }
+    
+    func boxAction<TValue>(_ action: (any View) -> TValue) -> TValue {
+        self.box.boxAction<TValue>(action)
     }
     
     public var body: some View {

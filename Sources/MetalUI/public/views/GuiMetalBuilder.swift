@@ -37,6 +37,7 @@ protocol GuiMutater {
     func border(position: simd_float2, size: simd_float2, description: BorderProperty)
     func border()
     func text(text: String)
+    func getSize(text: String) -> simd_float2
 }
 
 protocol GuiViewBuilder : GuiMutater {
@@ -209,16 +210,16 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         let right = position.x + size.x /// 2.0
         let rightWidth = description.rightWidth
         let rightColor = description.rightColor
-        let top = position.y + size.y /// 2.0
+        let top = position.y
         let topWidth = description.topWidth
         let topColor = description.topColor
-        let bottom = position.y //- size.y// / 2.0
+        let bottom = position.y + size.y
         let bottomWidth = description.bottomWidth
         let bottomColor = description.bottomColor
         
-        self.fillRectangle(position: .init(x: left, y: bottom), size: .init(x: leftWidth, y: size.y), color: leftColor)
+        self.fillRectangle(position: .init(x: left, y: top), size: .init(x: leftWidth, y: size.y), color: leftColor)
         self.fillRectangle(position: .init(x: position.x, y: top), size: .init(x: size.x, y: topWidth), color: topColor)
-        self.fillRectangle(position: .init(x: right, y: bottom), size: .init(x: rightWidth, y: size.y), color: rightColor)
+        self.fillRectangle(position: .init(x: right, y: top), size: .init(x: rightWidth, y: size.y), color: rightColor)
         self.fillRectangle(position: .init(x: left, y: bottom), size: .init(x: size.x, y: bottomWidth), color: bottomColor)
     }
     
@@ -231,6 +232,10 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         guard let layout = self.layoutStack.last else { return }
         let textInstanceData = self.textInstanceData(text: text, position: layout.position, color: _currentProperties.foregroundColor, fontSize: 22.0)
         self._instanceData.append(textInstanceData)
+    }
+    
+    func getSize(text: String) -> simd_float2 {
+        self.textManager.getRenderInfo(text: text, fontName: "System", color: .zero, size: 22.0)?.rect.size.toSimd() ?? .zero
     }
 }
 
@@ -250,6 +255,10 @@ class GuiUpdater : GuiViewBuilderBase, GuiMutater {
     
     func text(text: String) {
         
+    }
+    
+    func getSize(text: String) -> simd_float2 {
+        return .zero
     }
     
     private let _numberOfInstances : Int

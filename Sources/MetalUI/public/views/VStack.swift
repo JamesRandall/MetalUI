@@ -8,18 +8,7 @@
 import Metal
 import Combine
 
-public struct Text : View {
-    var content: String
-    
-    public init(_ content: String) {
-        self.content = content
-    }
-    
-    // Leaf nodes return self
-    public var body : some View { self }
-}
-
-public struct Panel : View, HasChildren {
+public struct VStack : View, HasChildren {
     internal let children : [any View]
     
     public init(@ViewBuilder content: () -> [any View]) {
