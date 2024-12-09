@@ -6,6 +6,7 @@
 //
 
 import Metal
+import simd
 
 @MainActor
 public protocol View {
@@ -24,4 +25,7 @@ extension Never: View {
     }
 }
 
-
+@MainActor
+internal protocol HasViewProperties : View {
+    var properties : ViewProperties { get set }
+}

@@ -18,10 +18,9 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         self._instanceData.append(rectangleInstanceData)
     }
     
-    func fillRectangle() {
+    func fillRectangle(with properties: ViewProperties, size: simd_float2) {
         guard let layout = self.layoutStack.last else { return }
-        guard let size = layout.size else { return }
-        self.fillRectangle(position: layout.position, size: size, color: self.getRenderProperties().backgroundColor)
+        self.fillRectangle(position: layout.position, size: size, color: properties.backgroundColor ?? simd_float4(1.0,1.0,1.0,1.0))
     }
     
     func border(position: simd_float2, size: simd_float2, description: BorderProperty) {
@@ -46,42 +45,47 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         self.fillRectangle(position: .init(x: left, y: bottom), size: .init(x: size.x, y: bottomWidth), color: bottomColor)
     }
     
-    func border() {
+    func border(with properties: ViewProperties, size: simd_float2) {
         guard let layout = self.layoutStack.last else { return }
-        guard let size = layout.size else { return }
-        self.border(position: layout.position, size: size, description: self.getRenderProperties().border)
+        self.border(position: layout.position, size: size, description: properties.border ?? BorderProperty.none)
     }
     
-    func text(text: String) {
+    func text(text: String, properties: ViewProperties) {
         guard let layout = self.layoutStack.last else { return }
-        let textInstanceData = self.textInstanceData(text: text, position: layout.position, color: _currentProperties.foregroundColor, fontName: layout.fontName, fontSize: layout.fontSize)
+        let textInstanceData = self.textInstanceData(
+            text: text,
+            position: layout.position,
+            color: properties.foregroundColor ?? simd_float4(1.0,1.0,1.0,1.0),
+            fontName: layout.fontName,
+            fontSize: layout.fontSize)
         self._instanceData.append(textInstanceData)
     }
     
-    func getSize(text: String) -> simd_float2 {
-        self.textManager.getRenderInfo(text: text, fontName: "System", color: .zero, size: 22.0)?.rect.size.toSimd() ?? .zero
+    func getSize(text: String, properties: ViewProperties) -> simd_float2 {
+        guard let layout = self.layoutStack.last else { return .zero }
+        return self.textManager.getRenderInfo(
+            text: text,
+            fontName: layout.fontName,
+            color: .zero,
+            size: CGFloat(properties.fontSize ?? .zero))?.rect.size.toSimd() ?? .zero
     }
 }
 
 
 class GuiUpdater : GuiViewBuilderBase, GuiMutater {
-    func fillRectangle() {
+    func fillRectangle(with properties: ViewProperties, size: simd_float2) {
         
     }
     
-    func border(position: simd_float2, size: simd_float2, description: BorderProperty) {
+    func border(with properties: ViewProperties, size: simd_float2) {
         
     }
     
-    func border() {
+    func text(text: String, properties: ViewProperties) {
         
     }
     
-    func text(text: String) {
-        
-    }
-    
-    func getSize(text: String) -> simd_float2 {
+    func getSize(text: String, properties: ViewProperties) -> simd_float2 {
         return .zero
     }
     

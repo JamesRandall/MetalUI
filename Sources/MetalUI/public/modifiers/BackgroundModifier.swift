@@ -35,7 +35,7 @@ struct BackgroundModifier : View, RequiresRuntimeRef {
     }
     
     var body : some View {
-        AnyView(self.content)
+        self.content
     }
     
     var background : simd_float4 { backgroundRef.value }

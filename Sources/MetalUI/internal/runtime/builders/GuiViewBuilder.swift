@@ -10,29 +10,20 @@ import simd
 
 @MainActor
 protocol GuiMutater {
-    func getLayout() -> RenderLayout
-    func getLayoutStackSize() -> Int
-    func pushLayout(position:simd_float2)
-    func pushLayout(size:simd_float2)
-    func pushLayout(fontName: String)
-    func pushLayout(fontSize: Float)
-    func pushAutoSizeIfRequired(requestedSize: simd_float2)
-    func pushLayout(autoSizeMode: AutoSizeMode)
+    func getPropagatingProperties() -> PropagatingRenderProperties
+    func getPropagatingPropertiesStackSize() -> Int
+    func pushPropagatingProperty(position:simd_float2)
+    func pushPropagatingProperty(fontName: String)
+    func pushPropagatingProperty(fontSize: Float)
     func resetForChild()
-    func popLayout()
+    func popPropagatingProperty()
     
-    func getRenderProperties() -> RenderProperties
-    func setRenderProperties(_ renderProperties: RenderProperties)
-    func mergeProperty(backgroundColor: simd_float4)
-    func mergeProperty(foregroundColor: simd_float4)
-    func mergeProperty(border: BorderDescription)
-    
-    func fillRectangle(position:simd_float2, size: simd_float2, color: simd_float4)
-    func fillRectangle()
-    func border(position: simd_float2, size: simd_float2, description: BorderProperty)
-    func border()
-    func text(text: String)
-    func getSize(text: String) -> simd_float2
+    //func fillRectangle(position:simd_float2, size: simd_float2, color: simd_float4)
+    //func border(position: simd_float2, size: simd_float2, description: BorderProperty)
+    func fillRectangle(with properties: ViewProperties, size: simd_float2)
+    func border(with properties: ViewProperties, size: simd_float2)
+    func text(text: String, properties: ViewProperties)
+    func getSize(text: String, properties: ViewProperties) -> simd_float2
 }
 
 protocol GuiViewBuilder : GuiMutater {

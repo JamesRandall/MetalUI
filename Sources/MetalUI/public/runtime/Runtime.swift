@@ -62,9 +62,9 @@ public class Runtime {
     private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
         let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager)
-        self._currentView = buildTree(view: rootView.body)
+        self._currentView = buildTree(view: rootView.body, sizeConstraints: ViewProperties.getDefault())
         guard let currentView = self._currentView else { return }
-        renderTree(currentView, builder: builder)
+        renderTree(currentView, builder: builder, maxWidth: size.x, maxHeight: size.y)
         //currentView.render(runtime: self, builder: builder)
         if builder.instanceData.isEmpty { return }
         guard let ib = renderEncoder.device.makeBuffer(bytes: builder.instanceData, length: MemoryLayout<GuiInstanceData>.stride * builder.instanceData.count, options: .storageModeShared) else { return }

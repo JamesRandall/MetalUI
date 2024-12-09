@@ -11,7 +11,7 @@ enum AutoSizeMode {
     case toChildren, toParent
 }
 
-struct RenderLayout {
+struct PropagatingRenderProperties {
     var position: simd_float2
     var size: simd_float2?
     var parentSize: simd_float2
@@ -19,41 +19,41 @@ struct RenderLayout {
     var fontName: String
     var fontSize: Float
     
-    func withPosition(position: simd_float2) -> RenderLayout {
+    func with(position: simd_float2) -> PropagatingRenderProperties {
         var copy = self
         copy.position = position
         return copy
     }
     
-    func withSize(size: simd_float2) -> RenderLayout {
+    func with(size: simd_float2) -> PropagatingRenderProperties {
         var copy = self
         copy.size = size
         return copy
     }
     
-    func withParentSize(parentSize: simd_float2) -> RenderLayout {
+    func with(parentSize: simd_float2) -> PropagatingRenderProperties {
         var copy = self
         copy.parentSize = parentSize
         return copy
     }
     
-    func withAutoSizeMode(autoSizeMode: AutoSizeMode) -> RenderLayout {
+    func with(autoSizeMode: AutoSizeMode) -> PropagatingRenderProperties {
         var copy = self
         copy.autoSizeMode = autoSizeMode
         return copy
     }
     
-    func withFontName(fontName: String) -> RenderLayout {
+    func with(fontName: String) -> PropagatingRenderProperties {
         var copy = self
         copy.fontName = fontName
         return copy
     }
     
-    func withFontSize(fontSize: Float) -> RenderLayout {
+    func with(fontSize: Float) -> PropagatingRenderProperties {
         var copy = self
         copy.fontSize = fontSize
         return copy
     }
     
-    static let zero = RenderLayout(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent, fontName: ".SFUI-Regular", fontSize: 18.0)
+    static let zero = PropagatingRenderProperties(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent, fontName: ".SFUI-Regular", fontSize: 18.0)
 }

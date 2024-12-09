@@ -10,19 +10,17 @@ import CoreGraphics
 
 internal class GuiViewBuilderBase {
     let worldProjection : float4x4
-    var layoutStack: [RenderLayout]
-    var _currentProperties : RenderProperties
+    var layoutStack: [PropagatingRenderProperties]
     let boundsSize : simd_float2
     let textManager : TextManager
     
     init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
         self.worldProjection = worldProjection
         
-        var startingLayout = RenderLayout.zero
+        var startingLayout = PropagatingRenderProperties.zero
         startingLayout.parentSize = size
         
         layoutStack = [startingLayout]
-        _currentProperties = .zero
         self.boundsSize = size
         self.textManager = textManager
     }
@@ -46,96 +44,43 @@ internal class GuiViewBuilderBase {
         )
     }
     
-    func getLayout() -> RenderLayout {
+    func getPropagatingProperties() -> PropagatingRenderProperties {
         layoutStack.last!
     }
     
-    func getLayoutStackSize() -> Int { layoutStack.count }
+    func getPropagatingPropertiesStackSize() -> Int { layoutStack.count }
     
-    func pushAutoSizeIfRequired(requestedSize: simd_float2) {
-        let tipLayout = getLayout()
-        if tipLayout.size == nil {
-            var copy = tipLayout
-            copy.size = tipLayout.autoSizeMode == .toParent ? tipLayout.parentSize : requestedSize
-            layoutStack.append(copy)
-        }
+    func pushPropagatingProperty(position:simd_float2) {
+        let tipLayout = getPropagatingProperties()
+        layoutStack.append(tipLayout.with(position: tipLayout.position + position))
     }
     
-    func pushLayout(autoSizeMode: AutoSizeMode) {
-        let tipLayout = getLayout()
-        layoutStack.append(tipLayout.withAutoSizeMode(autoSizeMode: autoSizeMode))
-    }
-    
-    func pushLayout(position:simd_float2) {
-        let tipLayout = getLayout()
-        layoutStack.append(tipLayout.withPosition(position: tipLayout.position + position))
-    }
-    
-    func pushLayout(size:simd_float2) {
-        let tipLayout = getLayout()
-        let newLayout = tipLayout.withSize(size: size)
+    func pushPropagatingProperty(fontName: String) {
+        let tipLayout = getPropagatingProperties()
+        let newLayout = tipLayout.with(fontName: fontName)
         layoutStack.append(newLayout)
     }
     
-    func pushLayout(fontName: String) {
-        let tipLayout = getLayout()
-        let newLayout = tipLayout.withFontName(fontName: fontName)
+    func pushPropagatingProperty(fontSize: Float) {
+        let tipLayout = getPropagatingProperties()
+        let newLayout = tipLayout.with(fontSize: fontSize)
         layoutStack.append(newLayout)
-    }
-    
-    func pushLayout(fontSize: Float) {
-        let tipLayout = getLayout()
-        let newLayout = tipLayout.withFontSize(fontSize: fontSize)
-        layoutStack.append(newLayout)
-    }
-    
-    func getRenderProperties() -> RenderProperties { self._currentProperties }
-    
-    func setRenderProperties(_ renderProperties: RenderProperties) { self._currentProperties = renderProperties }
-    
-    func mergeProperty(backgroundColor:simd_float4) {
-        self._currentProperties.backgroundColor = backgroundColor
-    }
-    
-    func mergeProperty(foregroundColor:simd_float4) {
-        self._currentProperties.foregroundColor = foregroundColor
-    }
-    
-    @MainActor func mergeProperty(border: BorderDescription) {
-        let c = border.color
-        let w = border.width
-        
-        border.border.forEach({ side in
-            if side == .all {
-                self._currentProperties.border = BorderProperty(topColor: c, topWidth: w, leftColor: c, leftWidth: w, rightColor: c, rightWidth: w, bottomColor: c, bottomWidth: w)
-            }
-            else {
-                switch side {
-                case .bottom:
-                    self._currentProperties.border.bottomColor = c
-                    self._currentProperties.border.bottomWidth = w
-                case .top:
-                    self._currentProperties.border.topColor = c
-                    self._currentProperties.border.topWidth = w
-                case .left:
-                    self._currentProperties.border.leftColor = c
-                    self._currentProperties.border.leftWidth = w
-                case .right:
-                    self._currentProperties.border.rightColor = c
-                    self._currentProperties.border.rightWidth = w
-                default: ()
-                }
-            }
-        })
     }
     
     func resetForChild() {
-        let tipLayout = getLayout()
-        layoutStack.append(RenderLayout(position: tipLayout.position, size: nil, parentSize: tipLayout.size ?? tipLayout.parentSize, autoSizeMode: .toParent, fontName: tipLayout.fontName, fontSize: tipLayout.fontSize))
-        _currentProperties = .zero
+        let tipLayout = getPropagatingProperties()
+        layoutStack.append(
+            PropagatingRenderProperties(
+                position: tipLayout.position,
+                size: nil,
+                parentSize: tipLayout.size ?? tipLayout.parentSize,
+                autoSizeMode: .toParent,
+                fontName: tipLayout.fontName,
+                fontSize: tipLayout.fontSize)
+        )
     }
     
-    func popLayout() {
+    func popPropagatingProperty() {
         layoutStack.removeLast()
     }
 }
