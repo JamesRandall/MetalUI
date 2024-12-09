@@ -16,8 +16,6 @@ struct PropagatingRenderProperties {
     var size: simd_float2?
     var parentSize: simd_float2
     var autoSizeMode: AutoSizeMode
-    var fontName: String
-    var fontSize: Float
     
     func with(position: simd_float2) -> PropagatingRenderProperties {
         var copy = self
@@ -43,17 +41,5 @@ struct PropagatingRenderProperties {
         return copy
     }
     
-    func with(fontName: String) -> PropagatingRenderProperties {
-        var copy = self
-        copy.fontName = fontName
-        return copy
-    }
-    
-    func with(fontSize: Float) -> PropagatingRenderProperties {
-        var copy = self
-        copy.fontSize = fontSize
-        return copy
-    }
-    
-    static let zero = PropagatingRenderProperties(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent, fontName: ".SFUI-Regular", fontSize: 18.0)
+    static let zero = PropagatingRenderProperties(position: .zero, size: nil, parentSize: .zero, autoSizeMode: .toParent)
 }

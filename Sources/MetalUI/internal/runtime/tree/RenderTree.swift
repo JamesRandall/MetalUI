@@ -15,12 +15,6 @@ private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, p
     if properties.margin.left != 0 || properties.margin.top != 0 {
         builder.pushPropagatingProperty(position: simd_float2(properties.margin.left, properties.margin.top))
     }
-    if let fontName = properties.fontName {
-        builder.pushPropagatingProperty(fontName: fontName)
-    }
-    if let fontSize = properties.fontSize {
-        builder.pushPropagatingProperty(fontSize: fontSize)
-    }
     let requestedSize = getRequestedSize(view, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
     builder.fillRectangle(with: properties, size: requestedSize)
     
@@ -47,10 +41,11 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, ma
         panel.children.forEach({ renderTree($0, builder: builder, maxWidth: requestedSize.x, maxHeight: requestedSize.y ) })
     }
     else if let vstack = view as? VStack {
+        builder.resetForChild()
         let _ = vstack.children.reduce(Float(0.0), { y,child in
-            let size = getRequestedSize(child, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
+            let size = getRequestedSize(child, builder: builder, maxWidth: requestedSize.x, maxHeight: requestedSize.y)
             builder.pushPropagatingProperty(position: simd_float2(0.0, y))
-            renderTree(child, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
+            renderTree(child, builder: builder, maxWidth: size.x, maxHeight: size.y)
             return y + size.y
         })
     }

@@ -20,7 +20,7 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
     
     func fillRectangle(with properties: ViewProperties, size: simd_float2) {
         guard let layout = self.layoutStack.last else { return }
-        self.fillRectangle(position: layout.position, size: size, color: properties.backgroundColor ?? simd_float4(1.0,1.0,1.0,1.0))
+        self.fillRectangle(position: layout.position, size: size, color: properties.backgroundColor)
     }
     
     func border(position: simd_float2, size: simd_float2, description: BorderProperty) {
@@ -55,19 +55,19 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         let textInstanceData = self.textInstanceData(
             text: text,
             position: layout.position,
-            color: properties.foregroundColor ?? simd_float4(1.0,1.0,1.0,1.0),
-            fontName: layout.fontName,
-            fontSize: layout.fontSize)
+            color: properties.foregroundColor,
+            fontName: properties.fontName,
+            fontSize: properties.fontSize)
         self._instanceData.append(textInstanceData)
     }
     
     func getSize(text: String, properties: ViewProperties) -> simd_float2 {
-        guard let layout = self.layoutStack.last else { return .zero }
         return self.textManager.getRenderInfo(
             text: text,
-            fontName: layout.fontName,
+            fontName: properties.fontName,
             color: .zero,
-            size: CGFloat(properties.fontSize ?? .zero))?.rect.size.toSimd() ?? .zero
+            size: CGFloat(properties.fontSize)
+        )?.rect.size.toSimd() ?? .zero
     }
 }
 

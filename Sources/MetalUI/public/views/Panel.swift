@@ -8,7 +8,6 @@
 import Metal
 import Combine
 
-
 public struct Panel : View, HasChildren, HasViewProperties {
     internal let children : [any View]
     

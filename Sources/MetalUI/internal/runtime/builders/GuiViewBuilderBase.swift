@@ -55,18 +55,6 @@ internal class GuiViewBuilderBase {
         layoutStack.append(tipLayout.with(position: tipLayout.position + position))
     }
     
-    func pushPropagatingProperty(fontName: String) {
-        let tipLayout = getPropagatingProperties()
-        let newLayout = tipLayout.with(fontName: fontName)
-        layoutStack.append(newLayout)
-    }
-    
-    func pushPropagatingProperty(fontSize: Float) {
-        let tipLayout = getPropagatingProperties()
-        let newLayout = tipLayout.with(fontSize: fontSize)
-        layoutStack.append(newLayout)
-    }
-    
     func resetForChild() {
         let tipLayout = getPropagatingProperties()
         layoutStack.append(
@@ -74,9 +62,7 @@ internal class GuiViewBuilderBase {
                 position: tipLayout.position,
                 size: nil,
                 parentSize: tipLayout.size ?? tipLayout.parentSize,
-                autoSizeMode: .toParent,
-                fontName: tipLayout.fontName,
-                fontSize: tipLayout.fontSize)
+                autoSizeMode: .toParent)
         )
     }
     

@@ -8,15 +8,17 @@
 import Metal
 import Combine
 
-public struct VStack : View, HasChildren {
+public struct VStack : View, HasViewProperties, HasChildren {
     internal let children : [any View]
+    var properties: ViewProperties = ViewProperties.getDefault()
     
     public init(@ViewBuilder content: () -> [any View]) {
         self.children = content()
     }
     
-    internal init(builtContent: [any View]) {
+    internal init(builtContent: [any View], properties: ViewProperties) {
         self.children = builtContent
+        self.properties = properties
     }
     
     public var body : some View { self }

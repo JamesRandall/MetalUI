@@ -10,14 +10,14 @@ import simd
 @MainActor
 internal struct ViewProperties {
     var sizeToChildren : Bool = false
-    var backgroundColor : simd_float4?
-    var foregroundColor : simd_float4?
+    var backgroundColor = simd_float4(0.0, 0.0, 0.0, 0.0)
+    var foregroundColor = simd_float4(1.0, 1.0, 1.0, 1.0)
     var position : simd_float2?
     var size : simd_float2?
     var margin : Inset = .zero
     var padding : Inset = .zero
-    var fontName : String?
-    var fontSize : Float?
+    var fontName : String = ".SFUI-Regular"
+    var fontSize : Float = 18.0
     var border : BorderProperty?
     
     //init() { }
@@ -32,13 +32,13 @@ internal struct ViewProperties {
         return copy
     }
     
-    func with(backgroundColor: simd_float4?) -> ViewProperties {
+    func with(backgroundColor: simd_float4) -> ViewProperties {
         var copy = self
         copy.backgroundColor = backgroundColor
         return copy
     }
     
-    func with(foregroundColor: simd_float4?) -> ViewProperties {
+    func with(foregroundColor: simd_float4) -> ViewProperties {
         var copy = self
         copy.foregroundColor = foregroundColor
         return copy

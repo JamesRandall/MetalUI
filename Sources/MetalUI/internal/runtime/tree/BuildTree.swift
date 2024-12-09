@@ -32,30 +32,19 @@ func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
         return anyView.boxAction({ buildTree(view: $0, sizeConstraints: sizeConstraints) })
     }
     
-    /*var view : any View = view
-    if var propertyView = view as? any HasViewProperties {
-        var properties = propertyView.properties
-        properties = properties
-            .with(sizeToChildren: sizeConstraints.sizeToChildren)
-            .with(backgroundColor: sizeConstraints.backgroundColor)
-            .with(position: sizeConstraints.position)
-        propertyView.properties = properties
-        view = propertyView
-    }*/
-    
     var newSizeConstraints = sizeConstraints
 
     if let panel = view as? Panel {
         let children = panel.children.map({
-            AnyView(buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild()))
+            buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild())
         })
         return Panel(properties: sizeConstraints, builtContent: children)
     }
-    else if let panel = view as? VStack {
-        let children = panel.children.map({
-            AnyView(buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild()))
+    else if let vstack = view as? VStack {
+        let children = vstack.children.map({
+            buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild().with(sizeToChildren: true))
         })
-        return VStack(builtContent: children)
+        return VStack(builtContent: children, properties: sizeConstraints)
     }
     else if let text = view as? Text {
         return Text(text.content, properties: sizeConstraints)
