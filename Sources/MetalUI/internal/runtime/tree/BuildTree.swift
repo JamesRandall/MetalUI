@@ -7,25 +7,6 @@
 
 import simd
 
-/*struct BuildTreeModifiers {
-    var sizeToChildren : Bool
-    
-    func with(sizeToChildren: Bool) -> BuildTreeModifiers {
-        var copy = self
-        copy.sizeToChildren = false
-        return copy
-    }
-    
-    func resetForChild() -> BuildTreeModifiers {
-        var copy = self
-        copy.sizeToChildren = false
-        return copy
-    }
-    
-    static let startingConstraints = BuildTreeModifiers(sizeToChildren: false)
-}*/
-
-// = BuildTreeSizeConstraints.startingConstraints
 @MainActor
 func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
     if let anyView = view as? AnyView {

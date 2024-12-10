@@ -50,21 +50,9 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, ma
     else if let text = view as? Text {
         builder.text(text: text.content, properties: properties)
     }
-    else if let arvv = view as? AnyResolvedValueView {
-        arvv.applyValue(with: builder)
-        return renderTree(arvv.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
-    }
-    else if let av = view as? ActionView {
-        av.applyValue(with: builder)
-        return renderTree(av.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
-    }
     
     // overlay rendering
-    if !(view is AnyResolvedValueView || view is ActionView) {
-        // if children have made modifications then we reset them here so we're looking at our render properties
-        // before drawing the overlay
-        builder.border(with: properties, size: requestedSize.content)
-    }
+    builder.border(with: properties, size: requestedSize.content)
     
     while (builder.getPropagatingPropertiesStackSize() > startingStackSize) {
         builder.popPropagatingProperty()
