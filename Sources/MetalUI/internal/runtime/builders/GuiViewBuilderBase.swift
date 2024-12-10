@@ -17,10 +17,7 @@ internal class GuiViewBuilderBase {
     init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
         self.worldProjection = worldProjection
         
-        var startingLayout = PropagatingRenderProperties.zero
-        startingLayout.parentSize = size
-        
-        layoutStack = [startingLayout]
+        layoutStack = [.zero]
         self.boundsSize = size
         self.textManager = textManager
     }
@@ -60,8 +57,6 @@ internal class GuiViewBuilderBase {
         layoutStack.append(
             PropagatingRenderProperties(
                 position: tipLayout.position,
-                size: nil,
-                parentSize: tipLayout.size ?? tipLayout.parentSize,
                 autoSizeMode: .toParent)
         )
     }

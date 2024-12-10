@@ -8,7 +8,7 @@
 import simd
 
 @MainActor
-private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, properties: ViewProperties, maxWidth: Float, maxHeight: Float) -> simd_float2 {
+private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, properties: ViewProperties, maxWidth: Float, maxHeight: Float) -> SizeInformation {
     if let position = properties.position {
         builder.pushPropagatingProperty(position: position)
     }
@@ -16,16 +16,15 @@ private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, p
         builder.pushPropagatingProperty(position: simd_float2(properties.margin.left, properties.margin.top))
     }
     let requestedSize = getRequestedSize(view, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
-    builder.fillRectangle(with: properties, size: requestedSize)
+    builder.fillRectangle(with: properties, size: requestedSize.content)
     
     return requestedSize
 }
 
 @MainActor
-func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, maxHeight: Float) {
+func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, maxHeight: Float) -> SizeInformation {
     if let anyView = view as? AnyView {
-        anyView.boxAction({ renderTree($0, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight ) })
-        return
+        return anyView.boxAction({ renderTree($0, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight ) })
     }
     
     let startingStackSize = builder.getPropagatingPropertiesStackSize()
@@ -38,15 +37,14 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, ma
     
     if let panel = view as? Panel {
         builder.resetForChild()
-        panel.children.forEach({ renderTree($0, builder: builder, maxWidth: requestedSize.x, maxHeight: requestedSize.y ) })
+        panel.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.content.x, maxHeight: requestedSize.content.y ) })
     }
     else if let vstack = view as? VStack {
         builder.resetForChild()
         let _ = vstack.children.reduce(Float(0.0), { y,child in
-            let size = getRequestedSize(child, builder: builder, maxWidth: requestedSize.x, maxHeight: requestedSize.y)
             builder.pushPropagatingProperty(position: simd_float2(0.0, y))
-            renderTree(child, builder: builder, maxWidth: size.x, maxHeight: size.y)
-            return y + size.y
+            let size = renderTree(child, builder: builder, maxWidth: requestedSize.content.x, maxHeight: requestedSize.content.y - y)
+            return y + size.footprint.y
         })
     }
     else if let text = view as? Text {
@@ -54,22 +52,22 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, ma
     }
     else if let arvv = view as? AnyResolvedValueView {
         arvv.applyValue(with: builder)
-        renderTree(arvv.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
+        return renderTree(arvv.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
     }
     else if let av = view as? ActionView {
         av.applyValue(with: builder)
-        renderTree(av.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
+        return renderTree(av.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
     }
     
     // overlay rendering
     if !(view is AnyResolvedValueView || view is ActionView) {
         // if children have made modifications then we reset them here so we're looking at our render properties
         // before drawing the overlay
-        builder.border(with: properties, size: requestedSize)
+        builder.border(with: properties, size: requestedSize.content)
     }
     
     while (builder.getPropagatingPropertiesStackSize() > startingStackSize) {
         builder.popPropagatingProperty()
     }
-    
+    return requestedSize
 }
