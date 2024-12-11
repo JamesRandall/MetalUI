@@ -13,6 +13,7 @@ internal struct ViewProperties {
     var backgroundColor = simd_float4(0.0, 0.0, 0.0, 0.0)
     var foregroundColor = simd_float4(1.0, 1.0, 1.0, 1.0)
     var position : simd_float2?
+    var positionTranslation : ((simd_float2) -> simd_float2) = { $0 }
     var size : simd_float2?
     var margin : Inset = .zero
     var padding : Inset = .zero
@@ -44,9 +45,10 @@ internal struct ViewProperties {
         return copy
     }
     
-    func with(position: simd_float2?) -> ViewProperties {
+    func with(position: simd_float2?, translation: @escaping ((simd_float2) -> simd_float2)) -> ViewProperties {
         var copy = self
         copy.position = position
+        copy.positionTranslation = translation
         return copy
     }
     

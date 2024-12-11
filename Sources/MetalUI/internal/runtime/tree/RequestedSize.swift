@@ -10,7 +10,7 @@ import simd
 extension [SizeInformation] {
     func maxSize() -> SizeInformation {
         let size = self.reduce(simd_float2.zero, { m,sz in simd_float2(Swift.max(m.x,sz.footprint.x), Swift.max(m.y,sz.footprint.y)) })
-        return SizeInformation(footprint: size, content: size)
+        return SizeInformation(footprint: size, paddingZone: size, contentZone: size)
     }
 }
 
@@ -20,9 +20,10 @@ private func constrain(_ size:simd_float2, maxWidth: Float, maxHeight: Float) ->
 
 struct SizeInformation {
     var footprint: simd_float2
-    var content: simd_float2
+    var paddingZone: simd_float2
+    var contentZone: simd_float2
     
-    static let zero = SizeInformation(footprint: .zero, content: .zero)
+    static let zero = SizeInformation(footprint: .zero, paddingZone: .zero, contentZone: .zero)
 }
 
 @MainActor
@@ -36,10 +37,12 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Flo
         properties = sizeConstraintView.properties
     }
     let margin = simd_float2(properties.margin.horizontal, properties.margin.vertical)
+    let padding = simd_float2(properties.padding.horizontal, properties.padding.vertical)
     if let absoluteSize = properties.size {
         return SizeInformation(
             footprint: absoluteSize + margin,
-            content: absoluteSize
+            paddingZone : absoluteSize - margin,
+            contentZone: absoluteSize
         )
     }
     
@@ -49,15 +52,17 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Flo
     if !properties.sizeToChildren {
         return SizeInformation(
             footprint: simd_float2(maxWidth, maxHeight),
-            content: simd_float2(maxWidth, maxHeight) - margin
+            paddingZone: simd_float2(maxWidth, maxHeight) - margin,
+            contentZone: simd_float2(maxWidth, maxHeight) - margin - padding
         )
     }
     
     if let text = view as? Text {
         let textSize = constrain(builder.getSize(text: text.content, properties: properties), maxWidth: maxWidth, maxHeight: maxHeight)
         return SizeInformation(
-            footprint: textSize + margin,
-            content: textSize
+            footprint: textSize + margin + padding,
+            paddingZone: textSize + padding,
+            contentZone: textSize
         )
     }
     else if let vs = view as? VStack {
@@ -67,25 +72,11 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Flo
         })
         
         return SizeInformation(
-            footprint: content + margin,
-            content: content
+            footprint: content + margin + padding,
+            paddingZone: content + padding,
+            contentZone: content
         )
     }
-    /*else if let arvv = view as? AnyResolvedValueView {
-        //arvv.applyValue(with: builder)
-        if arvv.layoutType == .size {
-            if let sizeView = arvv as? ResolvedValueView<simd_float2> {
-                return sizeView.value
-            }
-            else {
-                fatalError("This should not be possible")
-            }
-        }
-        return getRequestedSize(arvv.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
-    }
-    else if let av = view as? ActionView {
-        return getRequestedSize(av.content, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight )
-    }*/
     else if let hc = view as? HasChildren {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that

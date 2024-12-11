@@ -31,7 +31,7 @@ func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
         return Text(text.content, properties: sizeConstraints)
     }
     else if let pv = view as? PositionModifier {
-        newSizeConstraints = newSizeConstraints.with(position: pv.position)
+        newSizeConstraints = newSizeConstraints.with(position: pv.position, translation: pv.translation)
     }
     else if let mm = view as? MarginModifier {
         newSizeConstraints = newSizeConstraints.mergeMarginWith(insetDescription: mm.margin)
@@ -48,8 +48,7 @@ func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
         }
     }
     else if let pv = view as? PaddingModifier {
-        let pvContent = buildTree(view: pv.content, sizeConstraints: sizeConstraints.resetForChild())
-        return pvContent
+        newSizeConstraints = newSizeConstraints.mergePaddingWith(insetDescription: pv.padding)
     }
     else if let bv = view as? BackgroundModifier {
         newSizeConstraints = newSizeConstraints.with(backgroundColor: bv.background)

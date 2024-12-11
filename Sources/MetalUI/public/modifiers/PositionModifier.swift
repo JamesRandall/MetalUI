@@ -21,7 +21,7 @@ struct PositionModifier : View, RequiresRuntimeRef {
         self.positionRef = ValueRef(position)
     }
     
-    init (content: AnyView, binding: Published<simd_float2>.Publisher, translation:((simd_float2) -> simd_float2)? = nil) {
+    init (content: AnyView, binding: Published<simd_float2>.Publisher) {
         self.content = content
         self.positionRef = ValueRef(.zero)
         self.subscriptionManager = SubscriptionManager(
@@ -29,7 +29,17 @@ struct PositionModifier : View, RequiresRuntimeRef {
             positionRef: positionRef,
             runtimeRef: runtimeRef
         )
-        self.translation = translation ?? { $0 }
+    }
+    
+    init (content: AnyView, binding: Published<simd_float2>.Publisher, translation: @escaping ((simd_float2) -> simd_float2)) {
+        self.content = content
+        self.positionRef = ValueRef(.zero)
+        self.subscriptionManager = SubscriptionManager(
+            binding: binding,
+            positionRef: positionRef,
+            runtimeRef: runtimeRef
+        )
+        self.translation = translation
     }
     
     var body : some View {
@@ -52,7 +62,11 @@ extension View {
         PositionModifier(content: AnyView(self), position: position)
     }
     
-    public func position(_ binding:Published<simd_float2>.Publisher, translation:((simd_float2) -> simd_float2)? = nil) -> some View {
+    public func position(_ binding:Published<simd_float2>.Publisher, translation: @escaping ((simd_float2) -> simd_float2)) -> some View {
         PositionModifier(content: AnyView(self), binding: binding, translation:translation)
+    }
+    
+    public func position(_ binding:Published<simd_float2>.Publisher) -> some View {
+        PositionModifier(content: AnyView(self), binding: binding)
     }
 }
