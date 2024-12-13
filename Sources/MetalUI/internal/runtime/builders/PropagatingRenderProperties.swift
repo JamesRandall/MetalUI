@@ -14,6 +14,7 @@ enum AutoSizeMode {
 struct PropagatingRenderProperties {
     var position: simd_float2
     var autoSizeMode: AutoSizeMode
+    var visible: Bool
     
     func with(position: simd_float2) -> PropagatingRenderProperties {
         var copy = self
@@ -27,5 +28,11 @@ struct PropagatingRenderProperties {
         return copy
     }
     
-    static let zero = PropagatingRenderProperties(position: .zero, autoSizeMode: .toParent)
+    func with(visibility: Bool) -> PropagatingRenderProperties {
+        var copy = self
+        copy.visible = visibility
+        return copy
+    }
+    
+    static let zero = PropagatingRenderProperties(position: .zero, autoSizeMode: .toParent, visible: true)
 }

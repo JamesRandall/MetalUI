@@ -36,6 +36,11 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Flo
     if let sizeConstraintView = view as? any HasViewProperties {
         properties = sizeConstraintView.properties
     }
+    
+    if properties.visible == false {
+        return .zero
+    }
+    
     let margin = simd_float2(properties.margin.horizontal, properties.margin.vertical)
     let padding = simd_float2(properties.padding.horizontal, properties.padding.vertical)
     if let absoluteSize = properties.size {

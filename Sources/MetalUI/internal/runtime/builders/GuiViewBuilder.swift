@@ -13,6 +13,7 @@ protocol GuiMutater {
     func getPropagatingProperties() -> PropagatingRenderProperties
     func getPropagatingPropertiesStackSize() -> Int
     func pushPropagatingProperty(position:simd_float2)
+    func pushPropagatingProperty(visibility:Bool)
     func resetForChild()
     func popPropagatingProperty()
     

@@ -9,6 +9,9 @@ import simd
 
 @MainActor
 private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, properties: ViewProperties, maxWidth: Float, maxHeight: Float) -> SizeInformation {
+    if !properties.visible {
+        builder.pushPropagatingProperty(visibility: false)
+    }
     if let position = properties.position {
         let translation = properties.positionTranslation
         builder.pushPropagatingProperty(position: translation(position))
@@ -71,6 +74,7 @@ func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, ma
     if let propertyView = view as? any HasViewProperties {
         properties = propertyView.properties
     }
+    
     let requestedSize = renderViewProperties(view, builder: builder, properties: properties, maxWidth: maxWidth, maxHeight: maxHeight)
     renderView(view, requestedSize: requestedSize, properties: properties, builder: builder)
     

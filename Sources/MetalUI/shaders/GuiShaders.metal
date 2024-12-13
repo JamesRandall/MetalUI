@@ -53,6 +53,7 @@ typedef struct {
     simd_float2 texTopLeft;
     simd_float2 texBottomRight;
     int shouldTexture;
+    int isVisible;
 } GuiInstanceData;
 
 // Vertex shader
@@ -60,13 +61,18 @@ vertex GuiOut guiVertexShader(GuiVertex in [[stage_in]],
                               constant GuiUniforms& uniforms [[buffer(1)]],
                               constant GuiInstanceData *instanceData [[buffer(2)]],
                               uint instanceID [[instance_id]]) {
+    GuiOut out;
     GuiInstanceData instance = instanceData[instanceID];
+    if (instance.isVisible == 0) {
+        out.position = float4(10000.0, 10000.0, 10000.0, 1.0);
+        return out;
+    }
     
     float4x4 scaleMatrix = createScaleMatrix(float3(instance.size, 1.0));
     float4x4 translationMatrix = createTranslateMatrix(float3(instance.position, 0.0));
     float4x4 modelViewMatrix = translationMatrix * scaleMatrix;
     
-    GuiOut out;
+    
     out.position = uniforms.projectionMatrix * modelViewMatrix * float4(in.position,1.0);
     out.color = instance.color;
     float x = in.texCoord.x == 0.0 ? instance.texTopLeft.x : instance.texBottomRight.x;

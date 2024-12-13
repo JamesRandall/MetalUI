@@ -23,7 +23,7 @@ internal class GuiViewBuilderBase {
     }
     
     internal func rectangleInstanceData(position: simd_float2, size: simd_float2, color: simd_float4) -> GuiInstanceData {
-        GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero)
+        GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero, isVisible: self.getPropagatingProperties().visible ? 1 : 0)
     }
     
     internal func textInstanceData(text: String, position: simd_float2, color: simd_float4, fontName: String, fontSize: Float) -> GuiInstanceData {
@@ -37,7 +37,8 @@ internal class GuiViewBuilderBase {
             size: textRenderInfo.rect.size.toSimd(),
             texTopLeft: self.textManager.texTopLeft(textRenderInfo), //simd_float2(0,0),
             texBottomRight: self.textManager.texBottomRight(textRenderInfo), // simd_float2(1,1),
-            shouldTexture: 1
+            shouldTexture: 1,
+            isVisible: self.getPropagatingProperties().visible ? 1 : 0
         )
     }
     
@@ -52,12 +53,18 @@ internal class GuiViewBuilderBase {
         layoutStack.append(tipLayout.with(position: tipLayout.position + position))
     }
     
+    func pushPropagatingProperty(visibility:Bool) {
+        let tipLayout = getPropagatingProperties()
+        layoutStack.append(tipLayout.with(visibility: visibility))
+    }
+    
     func resetForChild() {
         let tipLayout = getPropagatingProperties()
         layoutStack.append(
             PropagatingRenderProperties(
                 position: tipLayout.position,
-                autoSizeMode: .toParent)
+                autoSizeMode: .toParent,
+                visible: tipLayout.visible)
         )
     }
     

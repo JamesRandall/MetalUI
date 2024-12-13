@@ -20,6 +20,7 @@ internal struct ViewProperties {
     var fontName : String = ".SFUI-Regular"
     var fontSize : Float = 18.0
     var border : BorderProperty?
+    var visible : Bool = true
     
     //init() { }
     
@@ -67,6 +68,12 @@ internal struct ViewProperties {
     func with(fontSize: Float) -> ViewProperties {
         var copy = self
         copy.fontSize = fontSize
+        return copy
+    }
+    
+    func with(visibility: Bool) -> ViewProperties {
+        var copy = self
+        copy.visible = visibility
         return copy
     }
     

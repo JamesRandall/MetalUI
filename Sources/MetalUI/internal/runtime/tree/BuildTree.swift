@@ -62,6 +62,9 @@ func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
     else if view is SizeToChildrenModifier {
         newSizeConstraints = newSizeConstraints.with(sizeToChildren: true)
     }
+    else if let vm = view as? VisibilityModifier {
+        newSizeConstraints = newSizeConstraints.with(visibility: vm.visible)
+    }
     
     return buildTree(view: view.body, sizeConstraints: newSizeConstraints)
 }
