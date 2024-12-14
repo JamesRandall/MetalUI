@@ -22,6 +22,7 @@ internal struct ViewProperties {
     var border : BorderProperty?
     var visible : Bool = true
     var hover : HoverModifier?
+    var pressed : PressedModifier?
     
     //init() { }
     
@@ -81,6 +82,12 @@ internal struct ViewProperties {
     func with(hover: HoverModifier) -> ViewProperties {
         var copy = self
         copy.hover = hover
+        return copy
+    }
+    
+    func with(pressed: PressedModifier) -> ViewProperties {
+        var copy = self
+        copy.pressed = pressed
         return copy
     }
     

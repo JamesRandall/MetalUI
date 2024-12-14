@@ -8,10 +8,10 @@
 import Metal
 import Combine
 
-public struct Button : View, HasChildren, HasStateTriggeredContent, HasViewProperties {
+public struct Button : View, HasChildren, HasStateTriggeredContent, HasStateTriggeredChildren, HasViewProperties {
     internal let children : [any View]
-    internal let hoverContent : [any View]
-    internal let touchedContent : [any View]
+    internal let hoverChildren : [any View]
+    internal let pressedChildren : [any View]
     var action : () -> ()
     
     var properties: ViewProperties = ViewProperties.getDefault()
@@ -19,8 +19,8 @@ public struct Button : View, HasChildren, HasStateTriggeredContent, HasViewPrope
     public init(action: @escaping () -> (), @ViewBuilder content: () -> [any View]) {
         self.action = action
         self.children = content()
-        self.hoverContent = []
-        self.touchedContent = []
+        self.hoverChildren = []
+        self.pressedChildren = []
     }
     
     internal init(
@@ -28,16 +28,14 @@ public struct Button : View, HasChildren, HasStateTriggeredContent, HasViewPrope
         action: @escaping () -> (),
         builtContent: [any View],
         buildHoverContent: [any View],
-        buildTouchedContent: [any View]) {
+        buildPressedContent: [any View]) {
         self.properties = properties
         self.children = builtContent
         self.action = action
-        self.hoverContent = buildHoverContent
-        self.touchedContent = buildTouchedContent
+        self.hoverChildren = buildHoverContent
+        self.pressedChildren = buildPressedContent
     }
     
     public var body : some View { self }
-    public var hoverBody: some View { self }
-    public var touchedBody: some View { self }
 }
 

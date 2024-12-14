@@ -85,7 +85,8 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Flo
     else if let hc = view as? HasChildren {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that
-        let largestChildSize = hc.children
+        let children = view is any HasStateTriggeredChildren ? builder.getChildrenForState(view as! any HasStateTriggeredChildren) : hc.children
+        let largestChildSize = children
             .map({ getRequestedSize($0, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight ) })
             .maxSize()
         return largestChildSize

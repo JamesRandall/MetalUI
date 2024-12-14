@@ -40,11 +40,16 @@ internal protocol HasViewProperties : View {
     var properties : ViewProperties { get set }
 }
 
+// this interface allows us to only attach the modifiers for state to
+// select views
 @MainActor
 public protocol HasStateTriggeredContent : View {
-    associatedtype HoverBody: View
-    associatedtype TouchedBody: View
+    //associatedtype HoverBody: View
+    //associatedtype TouchedBody: View
     // The views body is the default content
-    var hoverBody : Self.HoverBody { get }
-    var touchedBody : Self.TouchedBody { get }
+    //var hoverBody : Self.HoverBody { get }
+    //var touchedBody : Self.TouchedBody { get }
 }
+
+// whereas this interface lets the builders access the children from the state
+

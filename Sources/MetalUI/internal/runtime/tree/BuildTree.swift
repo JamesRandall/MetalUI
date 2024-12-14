@@ -33,27 +33,31 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
             buildTree(view: $0, viewProperties: childProperties)
         })
         var hoverChildren: [any View] = []
+        var pressedChildren: [any View] = []
         if let hoverModifier = viewProperties.hover {
             hoverChildren = hoverModifier.hover.map({
                 buildTree(view: $0, viewProperties: childProperties)
             })
         }
+        if let pressedModifier = viewProperties.pressed {
+            pressedChildren = pressedModifier.pressed.map({
+                buildTree(view: $0, viewProperties: childProperties)
+            })
+        }
     
-        let touchedChildren = button.touchedContent.map({
-            buildTree(view: $0, viewProperties: childProperties)
-        })
         return Button(
             properties: viewProperties,
             action: button.action,
             builtContent: children,
             buildHoverContent: hoverChildren,
-            buildTouchedContent: touchedChildren
+            buildPressedContent: pressedChildren
         )
     }
     else if let hoverModifier = view as? HoverModifier {
-        //let builtHover = hoverModifier.children.map({ buildTree(view: $0, viewProperties: viewProperties.resetForChild()) })
-        //newViewProperties = newViewProperties.with(hover: builtHover)
-        newViewProperties.hover = hoverModifier
+        newViewProperties = newViewProperties.with(hover: hoverModifier)
+    }
+    else if let pressedModifier = view as? PressedModifier {
+        newViewProperties = newViewProperties.with(pressed: pressedModifier)
     }
     else if let text = view as? Text {
         return Text(text.content, properties: viewProperties)

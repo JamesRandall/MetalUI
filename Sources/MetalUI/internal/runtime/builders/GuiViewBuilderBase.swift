@@ -8,6 +8,7 @@
 import simd
 import CoreGraphics
 
+@MainActor
 internal class GuiViewBuilderBase {
     let worldProjection : float4x4
     private var layoutStack: [PropagatingRenderProperties]
@@ -70,5 +71,36 @@ internal class GuiViewBuilderBase {
     
     func popPropagatingProperty() {
         layoutStack.removeLast()
+    }
+    
+    private func getActualStateForView(_ view : any HasStateTriggeredChildren) -> InteractivityState {
+        // we need to get this through an interaction tracker
+        .pressed
+    }
+    
+    func getStateFor(view : any HasStateTriggeredChildren) -> InteractivityState {
+        // we only allow a state to be returned for a state that has an associated view - otherwise we return
+        // the default set of children
+        let actualState = getActualStateForView(view)
+        let children = getChildrenForState(view, with: actualState)
+        if children.isEmpty { return .normal }
+        return actualState
+    }
+    
+    func getChildrenForState(_ view : any HasStateTriggeredChildren) -> [any View] {
+        let actualState = getStateFor(view: view)
+        switch actualState {
+        case .hover: return view.hoverChildren
+        case .normal: return view.children
+        case .pressed: return view.pressedChildren
+        }
+    }
+    
+    private func getChildrenForState(_ view : any HasStateTriggeredChildren, with: InteractivityState) -> [any View] {
+        switch with {
+        case .hover: return view.hoverChildren
+        case .normal: return view.children
+        case .pressed: return view.pressedChildren
+        }
     }
 }

@@ -8,16 +8,7 @@
 import Combine
 import simd
 
-/*@MainActor
-struct PaddingDescription {
-    var border: [Border]
-    var width : Float
-    
-    public static let none = PaddingDescription(border: [.all], width: 0.0)
-}*/
-
-
-struct HoverModifier : View, RequiresRuntimeRef {
+struct HoverModifier : HasStateTriggeredContent, RequiresRuntimeRef {
     internal let content : AnyView
     internal let hover : [any View]
     internal var runtimeRef = RuntimeRef()
@@ -30,9 +21,8 @@ struct HoverModifier : View, RequiresRuntimeRef {
     var body : some View { return AnyView(self.content) }
 }
 
-
 extension HasStateTriggeredContent {
-    public func hover(@ViewBuilder content: @escaping () -> [any View]) -> some View {
+    public func hover(@ViewBuilder content: @escaping () -> [any View]) -> some HasStateTriggeredContent {
         HoverModifier(content: AnyView(self), hover: content)
     }
 }

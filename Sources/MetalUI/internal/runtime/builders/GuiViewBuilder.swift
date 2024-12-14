@@ -8,6 +8,10 @@
 import Metal
 import simd
 
+enum InteractivityState {
+    case normal, hover, pressed
+}
+
 @MainActor
 protocol GuiMutater {
     func getPropagatingProperties() -> PropagatingRenderProperties
@@ -17,12 +21,13 @@ protocol GuiMutater {
     func resetForChild()
     func popPropagatingProperty()
     
-    //func fillRectangle(position:simd_float2, size: simd_float2, color: simd_float4)
-    //func border(position: simd_float2, size: simd_float2, description: BorderProperty)
     func fillRectangle(with properties: ViewProperties, size: simd_float2)
     func border(with properties: ViewProperties, size: simd_float2)
     func text(text: String, properties: ViewProperties)
     func getSize(text: String, properties: ViewProperties) -> simd_float2
+    
+    func getStateFor(view : any HasStateTriggeredChildren) -> InteractivityState
+    func getChildrenForState(_ view : any HasStateTriggeredChildren) -> [any View]
 }
 
 protocol GuiViewBuilder : GuiMutater {
