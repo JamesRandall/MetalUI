@@ -46,17 +46,19 @@ private func renderOverlay(requestedSize: SizeInformation, builder: GuiViewBuild
 }
 
 @MainActor func renderView<V: View>(_ view: V, requestedSize: SizeInformation, properties: ViewProperties, builder: GuiViewBuilder) {
-    if let panel = view as? Panel {
-        builder.resetForChild()
-        panel.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
-    }
-    else if let vstack = view as? VStack {
+    if let vstack = view as? VStack {
         builder.resetForChild()
         let _ = vstack.children.reduce(Float(0.0), { y,child in
             builder.pushPropagatingProperty(position: simd_float2(0.0, y))
             let size = renderTree(child, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y - y)
+            builder.popPropagatingProperty()
             return y + size.footprint.y
         })
+    }
+    // default layout for an item that has children
+    else if let hasChildrenView = view as? HasChildren {
+        builder.resetForChild()
+        hasChildrenView.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
     }
     else if let text = view as? Text {
         builder.text(text: text.content, properties: properties)

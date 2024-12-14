@@ -19,7 +19,7 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
     }
     
     func fillRectangle(with properties: ViewProperties, size: simd_float2) {
-        guard let layout = self.layoutStack.last else { return }
+        let layout = self.getPropagatingProperties()
         self.fillRectangle(position: layout.position, size: size, color: properties.backgroundColor)
     }
     
@@ -46,12 +46,12 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
     }
     
     func border(with properties: ViewProperties, size: simd_float2) {
-        guard let layout = self.layoutStack.last else { return }
+        let layout = self.getPropagatingProperties()
         self.border(position: layout.position, size: size, description: properties.border ?? BorderProperty.none)
     }
     
     func text(text: String, properties: ViewProperties) {
-        guard let layout = self.layoutStack.last else { return }
+        let layout = self.getPropagatingProperties()
         let textInstanceData = self.textInstanceData(
             text: text,
             position: layout.position,

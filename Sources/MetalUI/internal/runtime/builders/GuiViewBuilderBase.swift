@@ -10,7 +10,7 @@ import CoreGraphics
 
 internal class GuiViewBuilderBase {
     let worldProjection : float4x4
-    var layoutStack: [PropagatingRenderProperties]
+    private var layoutStack: [PropagatingRenderProperties]
     let boundsSize : simd_float2
     let textManager : TextManager
     

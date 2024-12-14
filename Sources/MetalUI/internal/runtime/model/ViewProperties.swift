@@ -21,6 +21,7 @@ internal struct ViewProperties {
     var fontSize : Float = 18.0
     var border : BorderProperty?
     var visible : Bool = true
+    var hover : HoverModifier?
     
     //init() { }
     
@@ -74,6 +75,12 @@ internal struct ViewProperties {
     func with(visibility: Bool) -> ViewProperties {
         var copy = self
         copy.visible = visibility
+        return copy
+    }
+    
+    func with(hover: HoverModifier) -> ViewProperties {
+        var copy = self
+        copy.hover = hover
         return copy
     }
     

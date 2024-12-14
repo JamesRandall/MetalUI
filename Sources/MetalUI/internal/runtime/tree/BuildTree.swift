@@ -8,63 +8,91 @@
 import simd
 
 @MainActor
-func buildTree<V: View>(view : V, sizeConstraints: ViewProperties) -> any View{
+func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     if let anyView = view as? AnyView {
-        return anyView.boxAction({ buildTree(view: $0, sizeConstraints: sizeConstraints) })
+        return anyView.boxAction({ buildTree(view: $0, viewProperties: viewProperties) })
     }
     
-    var newSizeConstraints = sizeConstraints
+    var newViewProperties = viewProperties
 
-    if let panel = view as? Panel {
+    if let panel = view as? ZStack {
         let children = panel.children.map({
-            buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild())
+            buildTree(view: $0, viewProperties: viewProperties.resetForChild())
         })
-        return Panel(properties: sizeConstraints, builtContent: children)
+        return ZStack(properties: viewProperties, builtContent: children)
     }
     else if let vstack = view as? VStack {
         let children = vstack.children.map({
-            buildTree(view: $0, sizeConstraints: sizeConstraints.resetForChild().with(sizeToChildren: true))
+            buildTree(view: $0, viewProperties: viewProperties.resetForChild().with(sizeToChildren: true))
         })
-        return VStack(builtContent: children, properties: sizeConstraints)
+        return VStack(builtContent: children, properties: viewProperties)
+    }
+    else if let button = view as? Button {
+        let childProperties = viewProperties.resetForChild().with(sizeToChildren: true)
+        let children = button.children.map({
+            buildTree(view: $0, viewProperties: childProperties)
+        })
+        var hoverChildren: [any View] = []
+        if let hoverModifier = viewProperties.hover {
+            hoverChildren = hoverModifier.hover.map({
+                buildTree(view: $0, viewProperties: childProperties)
+            })
+        }
+    
+        let touchedChildren = button.touchedContent.map({
+            buildTree(view: $0, viewProperties: childProperties)
+        })
+        return Button(
+            properties: viewProperties,
+            action: button.action,
+            builtContent: children,
+            buildHoverContent: hoverChildren,
+            buildTouchedContent: touchedChildren
+        )
+    }
+    else if let hoverModifier = view as? HoverModifier {
+        //let builtHover = hoverModifier.children.map({ buildTree(view: $0, viewProperties: viewProperties.resetForChild()) })
+        //newViewProperties = newViewProperties.with(hover: builtHover)
+        newViewProperties.hover = hoverModifier
     }
     else if let text = view as? Text {
-        return Text(text.content, properties: sizeConstraints)
+        return Text(text.content, properties: viewProperties)
     }
     else if let pv = view as? PositionModifier {
-        newSizeConstraints = newSizeConstraints.with(position: pv.position, translation: pv.translation)
+        newViewProperties = newViewProperties.with(position: pv.position, translation: pv.translation)
     }
     else if let mm = view as? MarginModifier {
-        newSizeConstraints = newSizeConstraints.mergeMarginWith(insetDescription: mm.margin)
+        newViewProperties = newViewProperties.mergeMarginWith(insetDescription: mm.margin)
     }
     else if let sv = view as? SizeModifier {
-        newSizeConstraints = newSizeConstraints.with(size: sv.size)
+        newViewProperties = newViewProperties.with(size: sv.size)
     }
     else if let fv = view as? FontModifier {
         if let name = fv.name {
-            newSizeConstraints = newSizeConstraints.with(fontName: name)
+            newViewProperties = newViewProperties.with(fontName: name)
         }
         if let size = fv.size {
-            newSizeConstraints = newSizeConstraints.with(fontSize: size)
+            newViewProperties = newViewProperties.with(fontSize: size)
         }
     }
     else if let pv = view as? PaddingModifier {
-        newSizeConstraints = newSizeConstraints.mergePaddingWith(insetDescription: pv.padding)
+        newViewProperties = newViewProperties.mergePaddingWith(insetDescription: pv.padding)
     }
     else if let bv = view as? BackgroundModifier {
-        newSizeConstraints = newSizeConstraints.with(backgroundColor: bv.background)
+        newViewProperties = newViewProperties.with(backgroundColor: bv.background)
     }
     else if let fv = view as? ForegroundColorModifier {
-        newSizeConstraints = newSizeConstraints.with(foregroundColor: fv.foreground)
+        newViewProperties = newViewProperties.with(foregroundColor: fv.foreground)
     }
     else if let b = view as? BorderModifier {
-        newSizeConstraints = newSizeConstraints.mergeBorderWith(borderDescription: b.border)
+        newViewProperties = newViewProperties.mergeBorderWith(borderDescription: b.border)
     }
     else if view is SizeToChildrenModifier {
-        newSizeConstraints = newSizeConstraints.with(sizeToChildren: true)
+        newViewProperties = newViewProperties.with(sizeToChildren: true)
     }
     else if let vm = view as? VisibilityModifier {
-        newSizeConstraints = newSizeConstraints.with(visibility: vm.visible)
+        newViewProperties = newViewProperties.with(visibility: vm.visible)
     }
     
-    return buildTree(view: view.body, sizeConstraints: newSizeConstraints)
+    return buildTree(view: view.body, viewProperties: newViewProperties)
 }

@@ -62,7 +62,7 @@ public class Runtime {
     private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
         let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager)
-        self._currentView = buildTree(view: rootView.body, sizeConstraints: ViewProperties.getDefault())
+        self._currentView = buildTree(view: rootView.body, viewProperties: ViewProperties.getDefault())
         guard let currentView = self._currentView else { return }
         let _ = renderTree(currentView, builder: builder, maxWidth: size.x, maxHeight: size.y)
         //currentView.render(runtime: self, builder: builder)

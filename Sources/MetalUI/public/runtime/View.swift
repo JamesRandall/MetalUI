@@ -14,6 +14,16 @@ public protocol View {
     var body: Self.Body { get }
 }
 
+public protocol HasVariableInstances : View {
+    // if the view has a dynamic number of render calls (and therefore instances in the GPU pipeline) then
+    // it should be returned here. this allows sufficient space to be reserved in the instance buffer for the
+    // maximum draw size of the control
+    //
+    // its also only required if the control mutates - if a control doesn't mutate then by definition it has a
+    // fixed number of render calls
+    func maxInstances() -> Int
+}
+
 @MainActor
 internal protocol HasChildren {
     var children : [any View] { get }
@@ -28,4 +38,13 @@ extension Never: View {
 @MainActor
 internal protocol HasViewProperties : View {
     var properties : ViewProperties { get set }
+}
+
+@MainActor
+public protocol HasStateTriggeredContent : View {
+    associatedtype HoverBody: View
+    associatedtype TouchedBody: View
+    // The views body is the default content
+    var hoverBody : Self.HoverBody { get }
+    var touchedBody : Self.TouchedBody { get }
 }

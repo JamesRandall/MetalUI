@@ -8,7 +8,7 @@
 import Metal
 import Combine
 
-public struct Panel : View, HasChildren, HasViewProperties {
+public struct ZStack : View, HasChildren, HasViewProperties {
     internal let children : [any View]
     
     var properties: ViewProperties = ViewProperties.getDefault()
@@ -23,15 +23,5 @@ public struct Panel : View, HasChildren, HasViewProperties {
     }
     
     public var body : some View { self }
-    
-    // if the view has a dynamic number of render calls (and therefore instances in the GPU pipeline) then
-    // it should be returned here. this allows sufficient space to be reserved in the instance buffer for the
-    // maximum draw size of the control
-    //
-    // its also only required if the control mutates - if a control doesn't mutate then by definition it has a
-    // fixed number of render calls
-    func maxInstances() -> Int? {
-        return nil
-    }
 }
 
