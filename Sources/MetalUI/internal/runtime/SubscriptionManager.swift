@@ -7,9 +7,11 @@
 
 import Combine
 
+// TODO: this needs implementing properly
+
 nonisolated(unsafe) var cancellables : [AnySubscriptionManager] = []
 
-protocol AnySubscriptionManager { }
+class AnySubscriptionManager { }
 
 class SubscriptionManager<TValue> : AnySubscriptionManager {
     private var cancellable: AnyCancellable?
@@ -24,14 +26,18 @@ class SubscriptionManager<TValue> : AnySubscriptionManager {
     ) {
         self.positionRef = positionRef
         self.runtimeRef = runtimeRef
-        self.cancellable = binding.sink { [weak self] newValue in
-            guard let self = self else { return }
-            //print("PositionedView: \(newValue)")
-            //let translatedValue = translation?(newValue) ?? newValue
-            self.positionRef.value = newValue
-            //print("Translated: \(translatedValue)")
-            self.runtimeRef?.value?.requestRenderUpdate()
+        self.cancellable = binding.sink { [weak positionRef, weak runtimeRef] newValue in
+            positionRef?.value = newValue
+            runtimeRef?.value?.requestRenderUpdate()
         }
+        super.init()
         cancellables.append(self)
+    }
+    
+    deinit {
+        self.cancellable?.cancel()
+        if let index = cancellables.firstIndex(where: { $0 === self }) {
+            cancellables.remove(at: index)
+        }
     }
 }

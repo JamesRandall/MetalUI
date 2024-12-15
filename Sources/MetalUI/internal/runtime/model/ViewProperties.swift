@@ -6,6 +6,7 @@
 //
 
 import simd
+import Foundation
 
 @MainActor
 internal struct ViewProperties {
@@ -29,7 +30,7 @@ internal struct ViewProperties {
     public static func getDefault() -> ViewProperties {
         ViewProperties()
     }
-    
+        
     func with(sizeToChildren: Bool) -> ViewProperties {
         var copy = self
         copy.sizeToChildren = sizeToChildren

@@ -10,6 +10,7 @@ import Metal
 import simd
 
 internal protocol HasStateTriggeredChildren : HasChildren {
+    var stateTrackingId : UUID { get }
     var children : [any View] { get }
     var hoverChildren : [any View] { get }
     var pressedChildren : [any View] { get }

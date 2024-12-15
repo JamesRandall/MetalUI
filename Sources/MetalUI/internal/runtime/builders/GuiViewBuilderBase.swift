@@ -7,6 +7,7 @@
 
 import simd
 import CoreGraphics
+import Foundation
 
 @MainActor
 internal class GuiViewBuilderBase {
@@ -14,13 +15,15 @@ internal class GuiViewBuilderBase {
     private var layoutStack: [PropagatingRenderProperties]
     let boundsSize : simd_float2
     let textManager : TextManager
+    let stateTracker : StateTracker
     
-    init (worldProjection: float4x4, size: simd_float2, textManager: TextManager) {
+    init (worldProjection: float4x4, size: simd_float2, textManager: TextManager, stateTracker: StateTracker) {
         self.worldProjection = worldProjection
         
         layoutStack = [.zero]
         self.boundsSize = size
         self.textManager = textManager
+        self.stateTracker = stateTracker
     }
     
     internal func rectangleInstanceData(position: simd_float2, size: simd_float2, color: simd_float4) -> GuiInstanceData {
@@ -73,9 +76,19 @@ internal class GuiViewBuilderBase {
         layoutStack.removeLast()
     }
     
+    func registerInteractiveZone(viewId: UUID, zone: CGRect) {
+        //print("registering interactive zone \(viewId)")
+        self.stateTracker.registerInteractiveZone(viewId: viewId, zone: zone)
+    }
+    
     private func getActualStateForView(_ view : any HasStateTriggeredChildren) -> InteractivityState {
+        //print("checking state for \(view.stateTrackingId)")
+        let response = stateTracker.isInteractiveZoneHit(viewId: view.stateTrackingId)
+        if response.isHit {
+            return response.mouseDown ? InteractivityState.pressed : InteractivityState.hover
+        }
         // we need to get this through an interaction tracker
-        .pressed
+        return InteractivityState.normal
     }
     
     func getStateFor(view : any HasStateTriggeredChildren) -> InteractivityState {

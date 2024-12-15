@@ -6,6 +6,7 @@
 //
 
 import simd
+import CoreGraphics
 
 @MainActor
 private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, properties: ViewProperties, maxWidth: Float, maxHeight: Float) -> SizeInformation {
@@ -59,14 +60,24 @@ private func renderOverlay(requestedSize: SizeInformation, builder: GuiViewBuild
         // we render all states but mark the none-active states as hidden
         // this allows us to keep a constant instance buffer size
         builder.resetForChild()
+        builder.registerInteractiveZone(
+            viewId: hasChildrenView.stateTrackingId,
+            zone: CGRect(
+                origin: builder.getPropagatingProperties().position.toCGPoint(),
+                size: requestedSize.contentZone.toCGSize()
+            )
+        )
         
         let state = builder.getStateFor(view: hasChildrenView)
+        //print("rendering \(hasChildrenView.stateTrackingId) with state \(state)")
         if state != .normal { builder.pushPropagatingProperty(visibility: false) }
         hasChildrenView.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
         if state != .normal { builder.popPropagatingProperty() }
+        
         if state != .hover { builder.pushPropagatingProperty(visibility: false) }
         hasChildrenView.hoverChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
         if state != .hover { builder.popPropagatingProperty() }
+        
         if state != .pressed { builder.pushPropagatingProperty(visibility: false) }
         hasChildrenView.pressedChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
         if state != .pressed { builder.popPropagatingProperty() }

@@ -94,11 +94,11 @@ class GuiUpdater : GuiViewBuilderBase, GuiMutater {
     private var _instancePointer : UnsafeMutablePointer<GuiInstanceData>
     private var _baseInstanceIndex : Int = 0
     
-    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int, textManager: TextManager) {
+    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int, textManager: TextManager, stateTracker: StateTracker) {
         _instanceBuffer = instanceBuffer
         _numberOfInstances = numberOfInstances
         _instancePointer = _instanceBuffer.contents().bindMemory(to: GuiInstanceData.self, capacity: _numberOfInstances)
-        super.init(worldProjection: worldProjection, size: size, textManager: textManager)
+        super.init(worldProjection: worldProjection, size: size, textManager: textManager, stateTracker: stateTracker)
     }
     
     func setBaseInstanceIndex(_ baseIndex: Int) {

@@ -47,6 +47,7 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     
         return Button(
             properties: viewProperties,
+            stateTrackingId: button.stateTrackingId,
             action: button.action,
             builtContent: children,
             buildHoverContent: hoverChildren,

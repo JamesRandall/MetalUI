@@ -13,6 +13,11 @@ extension CGSize {
     func toSimd() -> simd_float2 { simd_float2(Float(self.width), Float(self.height))}
 }
 
+extension simd_float2 {
+    func toCGSize() -> CGSize { CGSizeMake(CGFloat(self.x), CGFloat(self.y)) }
+    func toCGPoint() -> CGPoint { CGPointMake(CGFloat(self.x), CGFloat(self.y)) }
+}
+
 func + (lhs: CGPoint, rhs: CGPoint) -> CGPoint {
     return CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
 }

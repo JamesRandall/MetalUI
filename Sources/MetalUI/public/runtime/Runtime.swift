@@ -20,16 +20,20 @@ public class Runtime {
     private var _currentView : (any View)?
     private var _updateRequired = false
     private var _textManager : TextManager
+    private var _stateTracker : StateTracker
     
     //private var _builderStack : [View] = []
     
     var textManager : TextManager { _textManager }
+    
+    public var stateTracker : StateTracker { _stateTracker }
     
     @MainActor
     public init?(view: MTKView, scale:CGFloat, fontProvider: @escaping (String, CGFloat) -> NSObject, rootView : any View) {
         guard let device = view.device else { return nil }
         self.rootView = rootView
         self._textManager = TextManager(device: device, scale: scale, fontProvider: fontProvider)
+        self._stateTracker = StateTracker(size: view.bounds.size)
         runtime = self
     }
     
@@ -52,16 +56,21 @@ public class Runtime {
         //var newView = self.rootView.body
     }
     
+     
+    
     @MainActor
     func updateIfRequired(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
+        // TODO: when we tree diff need to rethink this reset
+        self._stateTracker.reset()
         self.buildRenderData(renderEncoder: renderEncoder, worldProjection: worldProjection, size: size)
     }
     
     @MainActor
     private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
-        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager)
+        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager, stateTracker: _stateTracker)
+        
         self._currentView = buildTree(view: rootView.body, viewProperties: ViewProperties.getDefault())
         guard let currentView = self._currentView else { return }
         let _ = renderTree(currentView, builder: builder, maxWidth: size.x, maxHeight: size.y)

@@ -44,11 +44,7 @@ internal protocol HasViewProperties : View {
 // select views
 @MainActor
 public protocol HasStateTriggeredContent : View {
-    //associatedtype HoverBody: View
-    //associatedtype TouchedBody: View
-    // The views body is the default content
-    //var hoverBody : Self.HoverBody { get }
-    //var touchedBody : Self.TouchedBody { get }
+    
 }
 
 // whereas this interface lets the builders access the children from the state

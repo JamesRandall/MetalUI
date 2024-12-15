@@ -15,6 +15,7 @@ public struct Button : View, HasChildren, HasStateTriggeredContent, HasStateTrig
     var action : () -> ()
     
     var properties: ViewProperties = ViewProperties.getDefault()
+    var stateTrackingId : UUID = UUID()
     
     public init(action: @escaping () -> (), @ViewBuilder content: () -> [any View]) {
         self.action = action
@@ -25,15 +26,17 @@ public struct Button : View, HasChildren, HasStateTriggeredContent, HasStateTrig
     
     internal init(
         properties: ViewProperties,
+        stateTrackingId: UUID,
         action: @escaping () -> (),
         builtContent: [any View],
         buildHoverContent: [any View],
         buildPressedContent: [any View]) {
-        self.properties = properties
-        self.children = builtContent
-        self.action = action
-        self.hoverChildren = buildHoverContent
-        self.pressedChildren = buildPressedContent
+            self.properties = properties
+            self.children = builtContent
+            self.action = action
+            self.hoverChildren = buildHoverContent
+            self.pressedChildren = buildPressedContent
+            self.stateTrackingId = stateTrackingId
     }
     
     public var body : some View { self }

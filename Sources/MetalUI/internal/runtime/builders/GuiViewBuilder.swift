@@ -26,6 +26,7 @@ protocol GuiMutater {
     func text(text: String, properties: ViewProperties)
     func getSize(text: String, properties: ViewProperties) -> simd_float2
     
+    func registerInteractiveZone(viewId: UUID, zone: CGRect)
     func getStateFor(view : any HasStateTriggeredChildren) -> InteractivityState
     func getChildrenForState(_ view : any HasStateTriggeredChildren) -> [any View]
 }
