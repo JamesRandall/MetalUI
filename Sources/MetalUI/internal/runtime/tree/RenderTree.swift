@@ -20,7 +20,7 @@ private func renderViewProperties<V: View>(_ view: V, builder: GuiViewBuilder, p
     if properties.margin.left != 0 || properties.margin.top != 0 {
         builder.pushPropagatingProperty(position: simd_float2(properties.margin.left, properties.margin.top))
     }
-    let requestedSize = getRequestedSize(view, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
+    let requestedSize = getFinalSize(view, builder: builder, maxWidth: maxWidth, maxHeight: maxHeight)
     builder.fillRectangle(with: properties, size: requestedSize.paddingZone)
     
     if properties.padding.left != 0 || properties.padding.top != 0 {
@@ -53,7 +53,7 @@ private func renderOverlay(requestedSize: SizeInformation, builder: GuiViewBuild
             builder.pushPropagatingProperty(position: simd_float2(0.0, y))
             let size = renderTree(child, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y - y)
             builder.popPropagatingProperty()
-            return y + size.footprint.y
+            return y + size.footprint.y + vstack.spacing
         })
     }
     else if let hasChildrenView = view as? HasStateTriggeredChildren {

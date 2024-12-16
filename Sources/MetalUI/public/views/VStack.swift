@@ -12,13 +12,21 @@ public struct VStack : View, HasViewProperties, HasChildren {
     internal let children : [any View]
     var properties: ViewProperties = ViewProperties.getDefault()
     
+    public var spacing: Float = 0
+    
+    public init(spacing: Float, @ViewBuilder content: () -> [any View]) {
+        self.spacing = spacing
+        self.children = content()
+    }
+    
     public init(@ViewBuilder content: () -> [any View]) {
         self.children = content()
     }
     
-    internal init(builtContent: [any View], properties: ViewProperties) {
+    internal init(builtContent: [any View], spacing: Float, properties: ViewProperties) {
         self.children = builtContent
         self.properties = properties
+        self.spacing = spacing
     }
     
     public var body : some View { self }

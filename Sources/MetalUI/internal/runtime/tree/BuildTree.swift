@@ -23,12 +23,12 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     }
     else if let vstack = view as? VStack {
         let children = vstack.children.map({
-            buildTree(view: $0, viewProperties: viewProperties.resetForChild().with(sizeToChildren: true))
+            buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
         })
-        return VStack(builtContent: children, properties: viewProperties)
+        return VStack(builtContent: children, spacing: vstack.spacing, properties: viewProperties)
     }
     else if let button = view as? Button {
-        let childProperties = viewProperties.resetForChild().with(sizeToChildren: true)
+        let childProperties = viewProperties.resetForChild()
         let children = button.children.map({
             buildTree(view: $0, viewProperties: childProperties)
         })
@@ -92,8 +92,8 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     else if let b = view as? BorderModifier {
         newViewProperties = newViewProperties.mergeBorderWith(borderDescription: b.border)
     }
-    else if view is SizeToChildrenModifier {
-        newViewProperties = newViewProperties.with(sizeToChildren: true)
+    else if let sc = view as? SizeToChildrenModifier {
+        newViewProperties = newViewProperties.withSizeToChildren(horizontal: sc.horizontal, vertical: sc.vertical)
     }
     else if let vm = view as? VisibilityModifier {
         newViewProperties = newViewProperties.with(visibility: vm.visible)

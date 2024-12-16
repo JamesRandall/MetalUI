@@ -10,7 +10,8 @@ import Foundation
 
 @MainActor
 internal struct ViewProperties {
-    var sizeToChildren : Bool = false
+    var horizontalSizeToChildren : Bool = false
+    var verticalSizeToChildren : Bool = false
     var backgroundColor = simd_float4(0.0, 0.0, 0.0, 0.0)
     var foregroundColor = simd_float4(1.0, 1.0, 1.0, 1.0)
     var position : simd_float2?
@@ -31,9 +32,10 @@ internal struct ViewProperties {
         ViewProperties()
     }
         
-    func with(sizeToChildren: Bool) -> ViewProperties {
+    func withSizeToChildren(horizontal: Bool, vertical: Bool) -> ViewProperties {
         var copy = self
-        copy.sizeToChildren = sizeToChildren
+        copy.horizontalSizeToChildren = horizontal
+        copy.verticalSizeToChildren = vertical
         return copy
     }
     

@@ -10,7 +10,7 @@ import Combine
 
 public struct Text : View, HasViewProperties {
     var content: String
-    var properties: ViewProperties = ViewProperties.getDefault().with(sizeToChildren: true)
+    var properties: ViewProperties = ViewProperties.getDefault()
     
     public init(_ content: String) {
         self.content = content
