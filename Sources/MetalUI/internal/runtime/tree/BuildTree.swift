@@ -54,6 +54,9 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
             buildPressedContent: pressedChildren
         )
     }
+    else if let spacer = view as? Spacer {
+        return Spacer()
+    }
     else if let hoverModifier = view as? HoverModifier {
         newViewProperties = newViewProperties.with(hover: hoverModifier)
     }

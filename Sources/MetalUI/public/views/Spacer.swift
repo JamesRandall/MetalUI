@@ -11,6 +11,10 @@ import Combine
 public struct Spacer : View, HasViewProperties {
     var properties: ViewProperties = ViewProperties.getDefault()
     
+    public init() {
+        
+    }
+    
     internal init(properties: ViewProperties) {
         self.properties = properties
     }

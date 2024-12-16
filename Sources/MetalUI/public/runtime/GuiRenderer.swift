@@ -33,6 +33,14 @@ protocol PrimitiveRenderer {
     func rectangle(position:simd_float2, size: simd_float2, color: simd_float4);
 }
 
+func measure<T>(label: String, block: () -> T) -> T {
+    let startTime = CFAbsoluteTimeGetCurrent()
+    let result = block()
+    let endTime = CFAbsoluteTimeGetCurrent()
+    //print("\(label) Execution Time: \((endTime - startTime) * 1000) ms")
+    return result
+}
+
 public class GuiRenderer {
     private let pipelineState: MTLRenderPipelineState
     private let rectangleVertexBuffer: MTLBuffer
@@ -160,12 +168,11 @@ public class GuiRenderer {
     @MainActor
     public func draw(in view: MTKView, renderEncoder: MTLRenderCommandEncoder, gui: Runtime, worldProjection: float4x4) {
         guard let device = view.device else { return }
-        
         self.updateProjectionMatrix(device: device, size: view.drawableSize) // only do this on init and resize
         
-        gui.updateIfRequired(renderEncoder: renderEncoder, worldProjection: worldProjection, size: view.drawableSize.toSimd())
-        
-        /*gui.applyFrameUpdates(deltaTime: 0.0, worldProjection: worldProjection, gameObjectLocator: game, size: view.drawableSize)*/
+        measure(label: "GUI Update") {
+            gui.updateIfRequired(renderEncoder: renderEncoder, worldProjection: worldProjection, size: view.drawableSize.toSimd())
+        }
         
         renderEncoder.setRenderPipelineState(pipelineState)
         renderEncoder.setDepthStencilState(depthStencilState)
@@ -173,9 +180,8 @@ public class GuiRenderer {
         renderEncoder.setVertexBuffer(rectangleVertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(uniformsBuffer, offset:0, index: 1)
         renderEncoder.setFragmentTexture(gui.textManager.texture, index: 0)
-        
+    
         gui.render(renderEncoder: renderEncoder, worldProjection: self.projectionMatrix, size: view.drawableSize.toSimd())
-
     }
     
     struct GuiVertex {

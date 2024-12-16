@@ -53,7 +53,7 @@ func getFinalSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, 
         properties = sizeConstraintView.properties
     }
     
-    if properties.visible == false {
+    if properties.visible == false || view is Spacer {
         return .zero
     }
     
@@ -90,7 +90,7 @@ func getFinalSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, 
 }
 
 @MainActor
-private func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInformation {
+func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInformation {
     if let anyView = view as? AnyView {
         return anyView.boxAction<simd_float2>({ getRequestedSize($0, builder: builder ) })
     }
