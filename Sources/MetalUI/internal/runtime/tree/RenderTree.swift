@@ -14,6 +14,9 @@ class RenderTree {
         if let vstack = view as? VStack {
             RenderTree.render(vstack: vstack, requestedSize: requestedSize, properties: properties, builder: builder)
         }
+        else if let hstack = view as? HStack {
+            RenderTree.render(hstack: hstack, requestedSize: requestedSize, properties: properties, builder: builder)
+        }
         else if let view = view as? InteractivityStateBasedView {
             RenderTree.render(interactivityStateBasedView: view, requestedSize: requestedSize, properties: properties, builder: builder)
         }

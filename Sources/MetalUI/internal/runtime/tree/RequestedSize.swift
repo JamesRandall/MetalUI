@@ -125,6 +125,12 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
             return simd_float2(max(childSize.footprint.x, sz.x), sz.y + childSize.footprint.y + vs.spacing)
         }) - simd_float2(0.0, vs.spacing)
     }
+    else if let hs = view as? HStack {
+        contentSize = hs.children.reduce(simd_float2(0.0,0.0), { sz,child in
+            let childSize = getRequestedSize(child, builder: builder)
+            return simd_float2(sz.x + childSize.footprint.x + hs.spacing, max(childSize.footprint.y, sz.y))
+        }) - simd_float2(0.0, hs.spacing)
+    }
     else if let hc = view as? HasChildren {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that

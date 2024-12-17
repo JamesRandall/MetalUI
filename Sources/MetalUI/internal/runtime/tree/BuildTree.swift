@@ -27,6 +27,12 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
         })
         return VStack(builtContent: children, spacing: vstack.spacing, properties: viewProperties)
     }
+    else if let hstack = view as? HStack {
+        let children = hstack.children.map({
+            buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
+        })
+        return HStack(builtContent: children, spacing: hstack.spacing, properties: viewProperties)
+    }
     else if let button = view as? Button {
         let childProperties = viewProperties.resetForChild()
         let children = button.children.map({
