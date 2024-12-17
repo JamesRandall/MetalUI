@@ -81,7 +81,7 @@ internal class GuiViewBuilderBase {
         self.stateTracker.registerInteractiveZone(viewId: viewId, zone: zone)
     }
     
-    private func getActualStateForView(_ view : any HasStateTriggeredChildren) -> InteractivityState {
+    private func getActualStateForView(_ view : any InteractivityStateBasedView) -> InteractivityState {
         //print("checking state for \(view.stateTrackingId)")
         let response = stateTracker.isInteractiveZoneHit(viewId: view.stateTrackingId)
         if response.isHit {
@@ -91,7 +91,7 @@ internal class GuiViewBuilderBase {
         return InteractivityState.normal
     }
     
-    func getStateFor(view : any HasStateTriggeredChildren) -> InteractivityState {
+    func getStateFor(view : any InteractivityStateBasedView) -> InteractivityState {
         // we only allow a state to be returned for a state that has an associated view - otherwise we return
         // the default set of children
         let actualState = getActualStateForView(view)
@@ -100,7 +100,7 @@ internal class GuiViewBuilderBase {
         return actualState
     }
     
-    func getChildrenForState(_ view : any HasStateTriggeredChildren) -> [any View] {
+    func getChildrenForState(_ view : any InteractivityStateBasedView) -> [any View] {
         let actualState = getStateFor(view: view)
         switch actualState {
         case .hover: return view.hoverChildren
@@ -109,7 +109,7 @@ internal class GuiViewBuilderBase {
         }
     }
     
-    private func getChildrenForState(_ view : any HasStateTriggeredChildren, with: InteractivityState) -> [any View] {
+    private func getChildrenForState(_ view : any InteractivityStateBasedView, with: InteractivityState) -> [any View] {
         switch with {
         case .hover: return view.hoverChildren
         case .normal: return view.children

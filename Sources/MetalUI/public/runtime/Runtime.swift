@@ -73,20 +73,12 @@ public class Runtime {
         
         self._currentView = buildTree(view: rootView.body, viewProperties: ViewProperties.getDefault())
         guard let currentView = self._currentView else { return }
-        let _ = renderTree(currentView, builder: builder, maxWidth: size.x, maxHeight: size.y)
+        let _ = RenderTree.renderTree(currentView, builder: builder, maxWidth: size.x, maxHeight: size.y)
         //currentView.render(runtime: self, builder: builder)
         if builder.instanceData.isEmpty { return }
         guard let ib = renderEncoder.device.makeBuffer(bytes: builder.instanceData, length: MemoryLayout<GuiInstanceData>.stride * builder.instanceData.count, options: .storageModeShared) else { return }
         self.instanceCount = builder.instanceData.count
         self.instanceBuffer = ib
-    }
-    
-    private func nullNotification() {
-        
-    }
-    
-    private func build() {
-        
     }
 }
 

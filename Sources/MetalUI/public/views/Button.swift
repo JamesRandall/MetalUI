@@ -8,7 +8,7 @@
 import Metal
 import Combine
 
-public struct Button : View, HasChildren, HasStateTriggeredContent, HasStateTriggeredChildren, HasViewProperties {
+public struct Button : View, HasChildren, HasStateTriggeredContent, InteractivityStateBasedView, HasViewProperties {
     internal let children : [any View]
     internal let hoverChildren : [any View]
     internal let pressedChildren : [any View]
