@@ -47,12 +47,18 @@ public extension View {
         SizeModifier(content: AnyView(self), size: OptionalSize(width: Float(size.width), height: Float(size.height)))
     }
     
-    func size(_ width: Float, _ height: Float) -> some View {
+    func size(width: Float? = nil, height: Float? = nil) -> some View {
         SizeModifier(content: AnyView(self), size: OptionalSize(width: width, height: height))
     }
     
-    func size(_ width: Double, _ height: Double) -> some View {
-        SizeModifier(content: AnyView(self), size: OptionalSize(width: Float(width), height: Float(height)))
+    func size(width: Double? = nil, height: Double? = nil) -> some View {
+        SizeModifier(
+            content: AnyView(self),
+            size: OptionalSize(
+                width: width != nil ? Float(width!) : nil,
+                height: height != nil ? Float(height!) : nil
+            )
+        )
     }
     
     func size(_ size: simd_float2) -> some View {

@@ -115,36 +115,35 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
         )
     }
     
+    var contentSize = simd_float2.zero
     if let text = view as? Text {
-        let textSize = builder.getSize(text: text.content, properties: properties)
-        let sizeInformation = SizeInformation(
-            footprint: textSize + margin + padding,
-            paddingZone: textSize + padding,
-            contentZone: textSize
-        )
-        return sizeInformation
+        contentSize = builder.getSize(text: text.content, properties: properties)
     }
     else if let vs = view as? VStack {
-        let content = vs.children.reduce(simd_float2(0.0,0.0), { sz,child in
+        contentSize = vs.children.reduce(simd_float2(0.0,0.0), { sz,child in
             let childSize = getRequestedSize(child, builder: builder)
             return simd_float2(max(childSize.footprint.x, sz.x), sz.y + childSize.footprint.y + vs.spacing)
         }) - simd_float2(0.0, vs.spacing)
-        
-        let vstackSize = SizeInformation(
-            footprint: content + margin + padding,
-            paddingZone: content + padding,
-            contentZone: content
-        )
-        return vstackSize
     }
     else if let hc = view as? HasChildren {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that
         let children = view is any InteractivityStateBasedView ? builder.getChildrenForState(view as! any InteractivityStateBasedView) : hc.children
-        let largestChildSize = children
+        contentSize = children
             .map({ getRequestedSize($0, builder: builder) })
             .maxSize()
-        return largestChildSize
+            .footprint
     }
-    return .zero
+    if let fixedWidth = properties.size.width {
+        contentSize.x = fixedWidth - margin.x - padding.x
+    }
+    if let fixedHeight = properties.size.height {
+        contentSize.y = fixedHeight - margin.y - padding.y
+    }
+    let sizeInformation = SizeInformation(
+        footprint: contentSize + margin + padding,
+        paddingZone: contentSize + padding,
+        contentZone: contentSize
+    )
+    return sizeInformation
 }
