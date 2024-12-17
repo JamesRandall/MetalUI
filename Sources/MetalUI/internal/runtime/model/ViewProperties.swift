@@ -8,6 +8,18 @@
 import simd
 import Foundation
 
+struct OptionalSize {
+    var width : Float?
+    var height : Float?
+    
+    func toSimd() -> simd_float2? {
+        if let width = width, let height = height {
+            return simd_float2(width, height)
+        }
+        return nil
+    }
+}
+
 @MainActor
 internal struct ViewProperties {
     var horizontalSizeToChildren : Bool = false
@@ -16,7 +28,7 @@ internal struct ViewProperties {
     var foregroundColor = simd_float4(1.0, 1.0, 1.0, 1.0)
     var position : simd_float2?
     var positionTranslation : ((simd_float2) -> simd_float2) = { $0 }
-    var size : simd_float2?
+    var size : OptionalSize = OptionalSize()
     var margin : Inset = .zero
     var padding : Inset = .zero
     var fontName : String = ".SFUI-Regular"
@@ -58,7 +70,7 @@ internal struct ViewProperties {
         return copy
     }
     
-    func with(size: simd_float2?) -> ViewProperties {
+    func with(size: OptionalSize) -> ViewProperties {
         var copy = self
         copy.size = size
         return copy

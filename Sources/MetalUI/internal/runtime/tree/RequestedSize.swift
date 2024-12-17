@@ -59,7 +59,8 @@ func getFinalSize<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, 
     
     let margin = simd_float2(properties.margin.horizontal, properties.margin.vertical)
     let padding = simd_float2(properties.padding.horizontal, properties.padding.vertical)
-    if let absoluteSize = properties.size {
+    
+    if let absoluteSize = properties.size.toSimd() {
         return SizeInformation(
             footprint: absoluteSize + margin,
             paddingZone : absoluteSize - margin,
@@ -106,7 +107,7 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
     
     let margin = simd_float2(properties.margin.horizontal, properties.margin.vertical)
     let padding = simd_float2(properties.padding.horizontal, properties.padding.vertical)
-    if let absoluteSize = properties.size {
+    if let absoluteSize = properties.size.toSimd() {
         return SizeInformation(
             footprint: absoluteSize + margin,
             paddingZone : absoluteSize - margin,

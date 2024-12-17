@@ -11,12 +11,12 @@ import simd
 
 struct SizeModifier : View, RequiresRuntimeRef {
     let content : AnyView
-    private let sizeRef: ValueRef<simd_float2>
+    private let sizeRef: ValueRef<OptionalSize>
     private var binding: Published<simd_float2>.Publisher?
     private var cancellable: AnyCancellable?
     var runtimeRef = RuntimeRef()
     
-    init (content: AnyView, size: simd_float2) {
+    init (content: AnyView, size: OptionalSize) {
         self.content = content
         self.sizeRef = ValueRef(size)
         self.binding = nil
@@ -25,11 +25,11 @@ struct SizeModifier : View, RequiresRuntimeRef {
     
     init (content: AnyView, binding: Published<simd_float2>.Publisher) {
         self.content = content
-        self.sizeRef = ValueRef(.zero)
+        self.sizeRef = ValueRef(OptionalSize())
         self.binding = binding
         self.cancellable = binding.sink { [weak sizeRef, weak runtimeRef] newValue in
             //print("PositionedView: \(newValue)")
-            sizeRef?.value = newValue
+            sizeRef?.value = OptionalSize(width: newValue.x, height: newValue.y)
             runtimeRef?.value?.requestRenderUpdate()
         }
     }
@@ -38,25 +38,25 @@ struct SizeModifier : View, RequiresRuntimeRef {
         AnyView(self.content)
     }
     
-    var size : simd_float2 { sizeRef.value }
+    var size : OptionalSize { sizeRef.value }
 }
 
 public extension View {
     
     func size(_ size: CGSize) -> some View {
-        SizeModifier(content: AnyView(self), size: simd_float2(Float(size.width), Float(size.height)))
+        SizeModifier(content: AnyView(self), size: OptionalSize(width: Float(size.width), height: Float(size.height)))
     }
     
     func size(_ width: Float, _ height: Float) -> some View {
-        SizeModifier(content: AnyView(self), size: simd_float2(width, height))
+        SizeModifier(content: AnyView(self), size: OptionalSize(width: width, height: height))
     }
     
     func size(_ width: Double, _ height: Double) -> some View {
-        SizeModifier(content: AnyView(self), size: simd_float2(Float(width), Float(height)))
+        SizeModifier(content: AnyView(self), size: OptionalSize(width: Float(width), height: Float(height)))
     }
     
     func size(_ size: simd_float2) -> some View {
-        SizeModifier(content: AnyView(self), size: size)
+        SizeModifier(content: AnyView(self), size: OptionalSize(width: size.x, height: size.y))
     }
     
     func size(_ binding:Published<simd_float2>.Publisher) -> some View {
