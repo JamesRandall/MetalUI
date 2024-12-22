@@ -13,8 +13,9 @@ struct GuiInstanceData {
     var size: simd_float2
     var texTopLeft: simd_float2
     var texBottomRight: simd_float2
+    var textureIndex: simd_int1
     var shouldTexture: simd_int1
     var isVisible: simd_int1
     
-    static let zero = GuiInstanceData(color: .zero, position: .zero, size: .zero, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: 0, isVisible: 1)
+    static let zero = GuiInstanceData(color: .zero, position: .zero, size: .zero, texTopLeft: .zero, texBottomRight: .zero, textureIndex: 0, shouldTexture: 0, isVisible: 1)
 }

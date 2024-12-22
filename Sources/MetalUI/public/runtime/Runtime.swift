@@ -21,19 +21,19 @@ public class Runtime {
     private var _updateRequired = false
     private var _textManager : TextManager
     private var _stateTracker : StateTracker
-    
-    //private var _builderStack : [View] = []
+    private var _imageManager : ImageManager
     
     var textManager : TextManager { _textManager }
     
     public var stateTracker : StateTracker { _stateTracker }
     
     @MainActor
-    public init?(view: MTKView, scale:CGFloat, fontProvider: @escaping (String, CGFloat) -> NSObject, rootView : any View) {
+    public init?(view: MTKView, scale:CGFloat, imagePacks: [ImagePack], fontProvider: @escaping (String, CGFloat) -> NSObject, rootView : any View) {
         guard let device = view.device else { return nil }
         self.rootView = rootView
         self._textManager = TextManager(device: device, scale: scale, fontProvider: fontProvider)
         self._stateTracker = StateTracker(size: view.bounds.size)
+        self._imageManager = ImageManager(device: device, imagePacks: imagePacks)
         runtime = self
     }
     
@@ -69,7 +69,7 @@ public class Runtime {
     @MainActor
     private func buildRenderData(renderEncoder: MTLRenderCommandEncoder, worldProjection: float4x4, size: simd_float2) {
         self.projectionMatrix = worldProjection
-        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, textManager: _textManager, stateTracker: _stateTracker)
+        let builder = GuiViewBuilderImpl(worldProjection: worldProjection, size: size, imageManager: _imageManager, textManager: _textManager, stateTracker: _stateTracker)
         
         self._currentView = buildTree(view: rootView.body, viewProperties: ViewProperties.getDefault())
         guard let currentView = self._currentView else { return }

@@ -25,6 +25,7 @@ protocol GuiMutater {
     func border(with properties: ViewProperties, size: simd_float2)
     func text(text: String, properties: ViewProperties)
     func getSize(text: String, properties: ViewProperties) -> simd_float2
+    func image(name: String, imagePack: String, properties: ViewProperties)
     
     func registerInteractiveZone(viewId: UUID, zone: CGRect)
     func getStateFor(view : any InteractivityStateBasedView) -> InteractivityState

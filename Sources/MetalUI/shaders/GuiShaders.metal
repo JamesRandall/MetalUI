@@ -16,6 +16,7 @@ typedef struct
     float4 color;
     simd_float2 texCoord;
     int shouldTexture;
+    int textureIndex;
 } GuiOut;
 
 float4x4 createScaleMatrix(float3 scale) {
@@ -52,6 +53,7 @@ typedef struct {
     simd_float2 size;
     simd_float2 texTopLeft;
     simd_float2 texBottomRight;
+    int textureIndex;
     int shouldTexture;
     int isVisible;
 } GuiInstanceData;
@@ -79,12 +81,13 @@ vertex GuiOut guiVertexShader(GuiVertex in [[stage_in]],
     float y = in.texCoord.y == 0.0 ? instance.texTopLeft.y : instance.texBottomRight.y;
     out.texCoord = float2(x,y);
     out.shouldTexture = instance.shouldTexture;
+    out.textureIndex = instance.textureIndex;
     return out;
 }
 
 // Fragment shader
 fragment float4 guiFragmentShader(GuiOut in [[stage_in]],
-                                  texture2d<half> colorMap     [[ texture(0) ]]
+                                  texture2d<float> colorMap [[ texture(0) ]]
                                   ) {
     if (in.shouldTexture > 0) {
         //return float4(1.0, 1.0, 1.0, 1.0);
@@ -92,7 +95,7 @@ fragment float4 guiFragmentShader(GuiOut in [[stage_in]],
         constexpr sampler colorSampler(mip_filter::linear,
                                        mag_filter::linear,
                                        min_filter::linear);
-        half4 colorSample   = colorMap.sample(colorSampler, in.texCoord.xy);
+        float4 colorSample   = colorMap.sample(colorSampler, in.texCoord.xy);
         return float4(colorSample);
     }
     return in.color;

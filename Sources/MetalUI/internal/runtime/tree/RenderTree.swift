@@ -27,6 +27,9 @@ class RenderTree {
         else if let text = view as? Text {
             RenderTree.render(text: text, requestedSize: requestedSize, properties: properties, builder: builder)
         }
+        else if let image = view as? Image {
+            RenderTree.render(image: image, requestedSize: requestedSize, properties: properties, builder: builder)
+        }
     }
     
     static func renderTree<V: View>(_ view: V, builder: GuiViewBuilder, maxWidth: Float, maxHeight: Float) -> SizeInformation {

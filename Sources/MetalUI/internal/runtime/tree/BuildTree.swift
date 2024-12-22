@@ -60,17 +60,21 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
             buildPressedContent: pressedChildren
         )
     }
-    else if let spacer = view as? Spacer {
+    else if let text = view as? Text {
+        return Text(text.content, properties: viewProperties)
+    }
+    else if let image = view as? Image {
+        return Image(image.name, imagePack: image.imagePack, properties: viewProperties)
+    }
+    else if view is Spacer {
         return Spacer()
     }
+    // Modifiers
     else if let hoverModifier = view as? HoverModifier {
         newViewProperties = newViewProperties.with(hover: hoverModifier)
     }
     else if let pressedModifier = view as? PressedModifier {
         newViewProperties = newViewProperties.with(pressed: pressedModifier)
-    }
-    else if let text = view as? Text {
-        return Text(text.content, properties: viewProperties)
     }
     else if let pv = view as? PositionModifier {
         newViewProperties = newViewProperties.with(position: pv.position, translation: pv.translation)

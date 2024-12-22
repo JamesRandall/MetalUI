@@ -16,18 +16,28 @@ internal class GuiViewBuilderBase {
     let boundsSize : simd_float2
     let textManager : TextManager
     let stateTracker : StateTracker
+    let imageManager : ImageManager
     
-    init (worldProjection: float4x4, size: simd_float2, textManager: TextManager, stateTracker: StateTracker) {
+    init (worldProjection: float4x4, size: simd_float2, imageManager: ImageManager, textManager: TextManager, stateTracker: StateTracker) {
         self.worldProjection = worldProjection
         
         layoutStack = [.zero]
         self.boundsSize = size
+        self.imageManager = imageManager
         self.textManager = textManager
         self.stateTracker = stateTracker
     }
     
     internal func rectangleInstanceData(position: simd_float2, size: simd_float2, color: simd_float4) -> GuiInstanceData {
-        GuiInstanceData(color: color, position: position, size: size, texTopLeft: .zero, texBottomRight: .zero, shouldTexture: .zero, isVisible: self.getPropagatingProperties().visible ? 1 : 0)
+        GuiInstanceData(
+            color: color,
+            position: position,
+            size: size,
+            texTopLeft: .zero,
+            texBottomRight: .zero,
+            textureIndex: 0,
+            shouldTexture: .zero,
+            isVisible: self.getPropagatingProperties().visible ? 1 : 0)
     }
     
     internal func textInstanceData(text: String, position: simd_float2, color: simd_float4, fontName: String, fontSize: Float) -> GuiInstanceData {
@@ -40,7 +50,23 @@ internal class GuiViewBuilderBase {
             position: position,
             size: textRenderInfo.rect.size.toSimd(),
             texTopLeft: self.textManager.texTopLeft(textRenderInfo), //simd_float2(0,0),
-            texBottomRight: self.textManager.texBottomRight(textRenderInfo), // simd_float2(1,1),
+            texBottomRight: self.textManager.texBottomRight(textRenderInfo),
+            textureIndex: 0, // simd_float2(1,1),
+            shouldTexture: 1,
+            isVisible: self.getPropagatingProperties().visible ? 1 : 0
+        )
+    }
+    
+    internal func imageInstanceData(name: String, imagePackName: String, position: simd_float2, size: simd_float2) -> GuiInstanceData? {
+        guard let (subImage,textureSlot) = self.imageManager.getSubImage(name: name, imagePackName: imagePackName) else { return nil }
+        
+        return GuiInstanceData(
+            color:.zero,
+            position: position,
+            size: size,
+            texTopLeft: simd_float2(Float(subImage.u), Float(subImage.v)),
+            texBottomRight: simd_float2(Float(subImage.u2), Float(subImage.v2)),
+            textureIndex: simd_int1(textureSlot),
             shouldTexture: 1,
             isVisible: self.getPropagatingProperties().visible ? 1 : 0
         )

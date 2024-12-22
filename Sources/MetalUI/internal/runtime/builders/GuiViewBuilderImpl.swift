@@ -61,6 +61,10 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         self._instanceData.append(textInstanceData)
     }
     
+    func image(name: String, imagePack: String, properties: ViewProperties) {
+        
+    }
+    
     func getSize(text: String, properties: ViewProperties) -> simd_float2 {
         return self.textManager.getRenderInfo(
             text: text,
@@ -89,16 +93,20 @@ class GuiUpdater : GuiViewBuilderBase, GuiMutater {
         return .zero
     }
     
+    func image(name: String, imagePack: String, properties: ViewProperties) {
+        
+    }
+    
     private let _numberOfInstances : Int
     private var _instanceBuffer : MTLBuffer
     private var _instancePointer : UnsafeMutablePointer<GuiInstanceData>
     private var _baseInstanceIndex : Int = 0
     
-    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int, textManager: TextManager, stateTracker: StateTracker) {
+    init (worldProjection: float4x4, size: simd_float2, instanceBuffer: MTLBuffer, numberOfInstances: Int, imageManager: ImageManager, textManager: TextManager, stateTracker: StateTracker) {
         _instanceBuffer = instanceBuffer
         _numberOfInstances = numberOfInstances
         _instancePointer = _instanceBuffer.contents().bindMemory(to: GuiInstanceData.self, capacity: _numberOfInstances)
-        super.init(worldProjection: worldProjection, size: size, textManager: textManager, stateTracker: stateTracker)
+        super.init(worldProjection: worldProjection, size: size, imageManager: imageManager, textManager: textManager, stateTracker: stateTracker)
     }
     
     func setBaseInstanceIndex(_ baseIndex: Int) {
