@@ -27,6 +27,11 @@ class ImageManager {
         )
     }
     
+    var defaultTexture : MTLTexture {
+        guard let textureImagePack = _imagePacks["default"] else { fatalError("Default texture pack not found") }
+        return textureImagePack.texture
+    }
+    
     func getSubImage(name: String, imagePackName: String) -> (SubImage,Int)? {
         guard let imagePack = _imagePacks[imagePackName] else { return nil }
         guard let subImage = imagePack.imagePack.images[name] else { return nil }

@@ -24,6 +24,7 @@ public class Runtime {
     private var _imageManager : ImageManager
     
     var textManager : TextManager { _textManager }
+    var imageManager : ImageManager { _imageManager }
     
     public var stateTracker : StateTracker { _stateTracker }
     

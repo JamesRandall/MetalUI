@@ -72,6 +72,7 @@ internal class GuiViewBuilderBase {
         )
     }
     
+    
     func getPropagatingProperties() -> PropagatingRenderProperties {
         layoutStack.last!
     }

@@ -61,8 +61,14 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
         self._instanceData.append(textInstanceData)
     }
     
-    func image(name: String, imagePack: String, properties: ViewProperties) {
-        
+    func image(name: String, imagePack: String, properties: ViewProperties, size: simd_float2) {
+        let layout = self.getPropagatingProperties()
+        let imageInstanceData = self.imageInstanceData(
+            name: name,
+            imagePackName: imagePack,
+            position: layout.position,
+            size: size)
+        self._instanceData.append(imageInstanceData!)
     }
     
     func getSize(text: String, properties: ViewProperties) -> simd_float2 {
@@ -72,6 +78,11 @@ internal class GuiViewBuilderImpl : GuiViewBuilderBase, GuiViewBuilder {
             color: .zero,
             size: CGFloat(properties.fontSize)
         )?.rect.size.toSimd() ?? .zero
+    }
+    
+    func getSize(image: String, imagePack: String, properties: ViewProperties) -> simd_float2 {
+        guard let (subImage,_) = self.imageManager.getSubImage(name: image, imagePackName: imagePack) else { return .zero }
+        return simd_float2(Float(subImage.width), Float(subImage.height))
     }
 }
 
@@ -93,8 +104,12 @@ class GuiUpdater : GuiViewBuilderBase, GuiMutater {
         return .zero
     }
     
-    func image(name: String, imagePack: String, properties: ViewProperties) {
+    func image(name: String, imagePack: String, properties: ViewProperties, size: simd_float2) {
         
+    }
+    
+    func getSize(image: String, imagePack: String, properties: ViewProperties) -> simd_float2 {
+        return .zero
     }
     
     private let _numberOfInstances : Int

@@ -179,7 +179,9 @@ public class GuiRenderer {
         
         renderEncoder.setVertexBuffer(rectangleVertexBuffer, offset: 0, index: 0)
         renderEncoder.setVertexBuffer(uniformsBuffer, offset:0, index: 1)
-        renderEncoder.setFragmentTexture(gui.textManager.texture, index: 0)
+        let textures = [gui.textManager.texture, gui.imageManager.defaultTexture]
+        //renderEncoder.setFragmentTexture(gui.textManager.texture, index: 0)
+        renderEncoder.setFragmentTextures(textures, range: 0..<textures.count)
     
         gui.render(renderEncoder: renderEncoder, worldProjection: self.projectionMatrix, size: view.drawableSize.toSimd())
     }

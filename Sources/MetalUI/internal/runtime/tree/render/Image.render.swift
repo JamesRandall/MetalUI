@@ -7,6 +7,6 @@
 
 extension RenderTree {
     static func render(image: Image, requestedSize: SizeInformation, properties: ViewProperties, builder: GuiViewBuilder) {
-        builder.image(name: image.name, imagePack: image.imagePack, properties: properties)
+        builder.image(name: image.name, imagePack: image.imagePack, properties: properties, size: requestedSize.contentZone)
     }
 }

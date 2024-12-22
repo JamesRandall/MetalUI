@@ -41,6 +41,8 @@ extension NSImage {
             return nil
         }
         
+        context.translateBy(x: 0, y: CGFloat(height))
+        context.scaleBy(x: 1.0, y: -1.0)
         context.draw(cgImage, in: CGRect(x: 0, y: 0, width: CGFloat(width), height: CGFloat(height)))
         
         guard let data = context.data else {

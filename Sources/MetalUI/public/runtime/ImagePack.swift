@@ -22,8 +22,14 @@ public struct ImagePack {
     var images: [String:SubImage]
     
     public static func loadFromBundle(assetName: String, imagePackName: String = "default") -> ImagePack? {
-        guard let imageUrl = Bundle.main.url(forResource: assetName, withExtension: "png") else { return nil }
-        guard let jsonUrl = Bundle.main.url(forResource: assetName, withExtension: "json") else { return nil }
+        guard let imageUrl = Bundle.main.url(forResource: assetName, withExtension: "png") else {
+            print("Asset \(assetName).png not found in main bundle")
+            return nil
+        }
+        guard let jsonUrl = Bundle.main.url(forResource: assetName, withExtension: "json") else {
+            print("Asset \(assetName).json not found in main bundle")
+            return nil
+        }
         
         guard let packedImage = NSImage(contentsOf: imageUrl) else { return nil }
         guard let description = PackedImage.load(from:jsonUrl) else { return nil }

@@ -119,6 +119,9 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
     if let text = view as? Text {
         contentSize = builder.getSize(text: text.content, properties: properties)
     }
+    else if let image = view as? Image {
+        contentSize = builder.getSize(image: image.name, imagePack: image.imagePack, properties: properties)
+    }
     else if let vs = view as? VStack {
         contentSize = vs.children.reduce(simd_float2(0.0,0.0), { sz,child in
             let childSize = getRequestedSize(child, builder: builder)
