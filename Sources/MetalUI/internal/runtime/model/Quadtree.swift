@@ -13,8 +13,33 @@ struct Rect {
     let rect: CGRect
 }
 
-// Quadtree Node
+// this is not actually a quadtree!
 class Quadtree {
+    private var objects: [Rect] = []
+    
+    init(bounds: CGRect, capacity: Int = 4) {
+        
+    }
+    
+    func reset() {
+        self.objects.removeAll()
+    }
+    
+    // Insert a rectangle into the quadtree
+    func insert(_ rect: Rect) -> Bool {
+        objects.append(rect)
+        return true
+    }
+    
+    // Query for all rectangles containing a point
+    func query(at point: CGPoint) -> [Rect] {
+        return objects.filter({$0.rect.contains(point)})
+    }
+}
+
+
+// Quadtree Node
+/*class Quadtree {
     private var bounds: CGRect
     private let capacity: Int
     private var objects: [Rect] = []
@@ -96,3 +121,4 @@ class Quadtree {
         ]
     }
 }
+*/
