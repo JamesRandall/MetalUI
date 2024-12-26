@@ -16,10 +16,8 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     var newViewProperties = viewProperties
 
     if let panel = view as? ZStack {
-        let children = panel.children.map({
-            buildTree(view: $0, viewProperties: viewProperties.resetForChild())
-        })
-        return ZStack(properties: viewProperties, builtContent: children)
+        let content = buildTree(view: panel.content, viewProperties: viewProperties.resetForChild())
+        return ZStack(properties: viewProperties, builtContent: content)
     }
     else if let vstack = view as? VStack {
         let builtContent = buildTree(view: vstack.content, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
@@ -27,10 +25,6 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     }
     else if let hstack = view as? HStack {
         let builtContent = buildTree(view: hstack.content, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
-        
-        //let children = hstack.children.map({
-        //    buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
-        //})
         return HStack(builtContent: builtContent, spacing: hstack.spacing, properties: viewProperties)
     }
     else if let button = view as? Button {

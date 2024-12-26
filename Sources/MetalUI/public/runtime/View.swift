@@ -24,11 +24,6 @@ public protocol HasVariableInstances : View {
     func maxInstances() -> Int
 }
 
-@MainActor
-internal protocol HasChildren {
-    var children : [any View] { get }
-}
-
 extension Never: View {
     @MainActor public var body: Never {
         fatalError("Never should not have a body.")

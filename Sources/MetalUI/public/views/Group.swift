@@ -6,7 +6,7 @@
 //
 
 // The group is used internally to manage children
-internal struct Group : View, HasChildren {
+internal struct Group : View {
     internal let children: [any View]
     
     init (_ components: [any View]) {

@@ -8,7 +8,7 @@
 import Metal
 import Combine
 
-public struct VStack : View, HasViewProperties, HasChildren {
+public struct VStack : View, HasViewProperties {
     internal let content : any View
     internal var children : [any View] {
         if let group = content as? Group {

@@ -17,13 +17,16 @@ class RenderTree {
         else if let hstack = view as? HStack {
             RenderTree.render(hstack: hstack, requestedSize: requestedSize, properties: properties, builder: builder)
         }
+        else if let zstack = view as? ZStack {
+            RenderTree.render(zstack: zstack, requestedSize: requestedSize, properties: properties, builder: builder)
+        }
         else if let view = view as? InteractivityStateBasedView {
             RenderTree.render(interactivityStateBasedView: view, requestedSize: requestedSize, properties: properties, builder: builder)
         }
-        // default layout for an item that has children
-        else if let hasChildrenView = view as? HasChildren {
-            RenderTree.render(hasChildren: hasChildrenView, requestedSize: requestedSize, properties: properties, builder: builder)
+        else if let group = view as? Group {
+            RenderTree.render(group: group, requestedSize: requestedSize, properties: properties, builder: builder)
         }
+        // default layout for an item that has children
         else if let text = view as? Text {
             RenderTree.render(text: text, requestedSize: requestedSize, properties: properties, builder: builder)
         }

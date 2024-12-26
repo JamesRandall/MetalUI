@@ -142,7 +142,7 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
             contentSize = .zero
         }
     }
-    else if let hc = view as? HasChildren {
+    else if let hc = view as? Group {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that
         let children = hc.children
