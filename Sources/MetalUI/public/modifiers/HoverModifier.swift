@@ -10,10 +10,10 @@ import simd
 
 struct HoverModifier : HasStateTriggeredContent, RequiresRuntimeRef {
     internal let content : AnyView
-    internal let hover : [any View]
+    internal let hover : any View
     internal var runtimeRef = RuntimeRef()
     
-    init (content: AnyView, @ViewBuilder hover: () -> [any View]) {
+    init (content: AnyView, @ViewBuilder hover: () -> some View) {
         self.content = content
         self.hover = hover()
     }
@@ -22,7 +22,7 @@ struct HoverModifier : HasStateTriggeredContent, RequiresRuntimeRef {
 }
 
 extension HasStateTriggeredContent {
-    public func hover(@ViewBuilder content: @escaping () -> [any View]) -> some HasStateTriggeredContent {
+    public func hover(@ViewBuilder content: @escaping () -> some View) -> some HasStateTriggeredContent {
         HoverModifier(content: AnyView(self), hover: content)
     }
 }

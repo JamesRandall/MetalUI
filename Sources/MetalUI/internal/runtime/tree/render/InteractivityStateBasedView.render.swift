@@ -24,15 +24,23 @@ extension RenderTree {
         let state = builder.getStateFor(view: view)
         //print("rendering \(hasChildrenView.stateTrackingId) with state \(state)")
         if state != .normal { builder.pushPropagatingProperty(visibility: false) }
-        view.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
+        let _ = renderTree(view.content, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y )
+        //view.children.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
         if state != .normal { builder.popPropagatingProperty() }
         
-        if state != .hover { builder.pushPropagatingProperty(visibility: false) }
-        view.hoverChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
-        if state != .hover { builder.popPropagatingProperty() }
+        if let hoverContent = view.hoverContent {
+            if state != .hover { builder.pushPropagatingProperty(visibility: false) }
+            let _ = renderTree(hoverContent, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y )
+            //view.hoverChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
+            if state != .hover { builder.popPropagatingProperty() }
+        }
         
-        if state != .pressed { builder.pushPropagatingProperty(visibility: false) }
-        view.pressedChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
-        if state != .pressed { builder.popPropagatingProperty() }
+        if let pressedContent = view.pressedContent {
+            if state != .pressed { builder.pushPropagatingProperty(visibility: false) }
+            let _ = renderTree(pressedContent, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y )
+            //view.pressedChildren.forEach({ let _ = renderTree($0, builder: builder, maxWidth: requestedSize.contentZone.x, maxHeight: requestedSize.contentZone.y ) })
+            if state != .pressed { builder.popPropagatingProperty() }
+        }
+        
     }
 }

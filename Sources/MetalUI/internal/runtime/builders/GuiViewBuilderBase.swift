@@ -122,25 +122,26 @@ internal class GuiViewBuilderBase {
         // we only allow a state to be returned for a state that has an associated view - otherwise we return
         // the default set of children
         let actualState = getActualStateForView(view)
-        let children = getChildrenForState(view, with: actualState)
-        if children.isEmpty { return .normal }
-        return actualState
+        if let content = getChildrenForState(view, with: actualState) {
+            return actualState
+        }
+        return .normal
     }
     
-    func getChildrenForState(_ view : any InteractivityStateBasedView) -> [any View] {
+    func getChildrenForState(_ view : any InteractivityStateBasedView) -> (any View)? {
         let actualState = getStateFor(view: view)
         switch actualState {
-        case .hover: return view.hoverChildren
-        case .normal: return view.children
-        case .pressed: return view.pressedChildren
+        case .hover: return view.hoverContent
+        case .normal: return view.content
+        case .pressed: return view.pressedContent
         }
     }
     
-    private func getChildrenForState(_ view : any InteractivityStateBasedView, with: InteractivityState) -> [any View] {
+    private func getChildrenForState(_ view : any InteractivityStateBasedView, with: InteractivityState) -> (any View)? {
         switch with {
-        case .hover: return view.hoverChildren
-        case .normal: return view.children
-        case .pressed: return view.pressedChildren
+        case .hover: return view.hoverContent
+        case .normal: return view.content
+        case .pressed: return view.pressedContent
         }
     }
 }

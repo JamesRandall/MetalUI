@@ -30,7 +30,7 @@ protocol GuiMutater {
     
     func registerInteractiveZone(viewId: UUID, zone: CGRect)
     func getStateFor(view : any InteractivityStateBasedView) -> InteractivityState
-    func getChildrenForState(_ view : any InteractivityStateBasedView) -> [any View]
+    func getChildrenForState(_ view : any InteractivityStateBasedView) -> (any View)?
 }
 
 protocol GuiViewBuilder : GuiMutater {

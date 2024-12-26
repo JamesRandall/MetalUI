@@ -11,10 +11,10 @@ import simd
 
 struct PressedModifier : HasStateTriggeredContent, RequiresRuntimeRef {
     internal let content : AnyView
-    internal let pressed : [any View]
+    internal let pressed : any View
     internal var runtimeRef = RuntimeRef()
     
-    init (content: AnyView, @ViewBuilder pressed: () -> [any View]) {
+    init (content: AnyView, @ViewBuilder pressed: () -> any View) {
         self.content = content
         self.pressed = pressed()
     }
@@ -24,7 +24,7 @@ struct PressedModifier : HasStateTriggeredContent, RequiresRuntimeRef {
 
 
 extension HasStateTriggeredContent {
-    public func pressed(@ViewBuilder content: @escaping () -> [any View]) -> some HasStateTriggeredContent {
+    public func pressed(@ViewBuilder content: @escaping () -> some View) -> some HasStateTriggeredContent {
         PressedModifier(content: AnyView(self), pressed: content)
     }
 }

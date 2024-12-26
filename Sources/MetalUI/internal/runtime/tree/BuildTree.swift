@@ -22,42 +22,38 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
         return ZStack(properties: viewProperties, builtContent: children)
     }
     else if let vstack = view as? VStack {
-        let children = vstack.children.map({
-            buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
-        })
-        return VStack(builtContent: children, spacing: vstack.spacing, properties: viewProperties)
+        let builtContent = buildTree(view: vstack.content, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
+        return VStack(builtContent: builtContent, spacing: vstack.spacing, properties: viewProperties)
     }
     else if let hstack = view as? HStack {
-        let children = hstack.children.map({
-            buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
-        })
-        return HStack(builtContent: children, spacing: hstack.spacing, properties: viewProperties)
+        let builtContent = buildTree(view: hstack.content, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
+        
+        //let children = hstack.children.map({
+        //    buildTree(view: $0, viewProperties: viewProperties.resetForChild().withSizeToChildren(horizontal: false, vertical: true))
+        //})
+        return HStack(builtContent: builtContent, spacing: hstack.spacing, properties: viewProperties)
     }
     else if let button = view as? Button {
         let childProperties = viewProperties.resetForChild()
-        let children = button.children.map({
-            buildTree(view: $0, viewProperties: childProperties)
-        })
-        var hoverChildren: [any View] = []
-        var pressedChildren: [any View] = []
+        let content = buildTree(view: button.content, viewProperties: childProperties)
+        var hoverContent: (any View)? = nil
+        var pressedContent: (any View)? = nil
         if let hoverModifier = viewProperties.hover {
-            hoverChildren = hoverModifier.hover.map({
-                buildTree(view: $0, viewProperties: childProperties)
-            })
+            let view : any View = hoverModifier.hover
+            hoverContent = buildTree(view: view, viewProperties: childProperties)
         }
         if let pressedModifier = viewProperties.pressed {
-            pressedChildren = pressedModifier.pressed.map({
-                buildTree(view: $0, viewProperties: childProperties)
-            })
+            let view : any View = pressedModifier.pressed
+            pressedContent = buildTree(view: view, viewProperties: childProperties)
         }
     
         return Button(
             properties: viewProperties,
             stateTrackingId: button.stateTrackingId,
             action: button.action,
-            builtContent: children,
-            buildHoverContent: hoverChildren,
-            buildPressedContent: pressedChildren
+            builtContent: content,
+            buildHoverContent: hoverContent,
+            buildPressedContent: pressedContent
         )
     }
     else if let text = view as? Text {
@@ -68,6 +64,11 @@ func buildTree<V: View>(view : V, viewProperties: ViewProperties) -> any View{
     }
     else if view is Spacer {
         return Spacer()
+    }
+    else if let group = view as? Group {
+        // we don't reset child properties for the group as we want them to propagate
+        let builtContent = group.children.map({ buildTree(view: $0, viewProperties: viewProperties) })
+        return Group(builtContent)
     }
     // Modifiers
     else if let hoverModifier = view as? HoverModifier {

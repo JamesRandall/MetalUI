@@ -9,22 +9,28 @@ import Metal
 import Combine
 
 public struct VStack : View, HasViewProperties, HasChildren {
-    internal let children : [any View]
+    internal let content : any View
+    internal var children : [any View] {
+        if let group = content as? Group {
+            return group.children
+        }
+        return [content]
+    }
     var properties: ViewProperties = ViewProperties.getDefault()
     
     public var spacing: Float = 0
     
-    public init(spacing: Float, @ViewBuilder content: () -> [any View]) {
+    public init(spacing: Float, @ViewBuilder content: () -> some View) {
         self.spacing = spacing
-        self.children = content()
+        self.content = content()
     }
     
-    public init(@ViewBuilder content: () -> [any View]) {
-        self.children = content()
+    public init(@ViewBuilder content: () -> some View) {
+        self.content = content()
     }
     
-    internal init(builtContent: [any View], spacing: Float, properties: ViewProperties) {
-        self.children = builtContent
+    internal init(builtContent: any View, spacing: Float, properties: ViewProperties) {
+        self.content = builtContent
         self.properties = properties
         self.spacing = spacing
     }

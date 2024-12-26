@@ -9,9 +9,13 @@
 import Metal
 import simd
 
-internal protocol InteractivityStateBasedView : HasChildren {
+@MainActor
+internal protocol InteractivityStateBasedView {
     var stateTrackingId : UUID { get }
-    var children : [any View] { get }
+    /*var children : [any View] { get }
     var hoverChildren : [any View] { get }
-    var pressedChildren : [any View] { get }
+    var pressedChildren : [any View] { get }*/
+    var content : any View { get }
+    var hoverContent : (any View)? { get }
+    var pressedContent : (any View)? { get }
 }

@@ -8,34 +8,56 @@
 import Metal
 import Combine
 
-public struct Button : View, HasChildren, HasStateTriggeredContent, InteractivityStateBasedView, HasViewProperties {
-    internal let children : [any View]
-    internal let hoverChildren : [any View]
-    internal let pressedChildren : [any View]
+public struct Button : View, HasStateTriggeredContent, InteractivityStateBasedView, HasViewProperties {
+    internal let content : any View
+    internal let hoverContent : (any View)?
+    internal let pressedContent : (any View)?
+    
+    /*internal var children : [any View] {
+        if let group = content as? Group {
+            return group.children
+        }
+        return [content]
+    }
+    
+    internal var hoverChildren : [any View] {
+        if let group = hoverContent as? Group {
+            return group.children
+        }
+        return [content]
+    }
+    
+    internal var pressedChildren : [any View] {
+        if let group = hoverContent as? Group {
+            return group.children
+        }
+        return [content]
+    }*/
+    
     var action : () -> ()
     
     var properties: ViewProperties = ViewProperties.getDefault()
     var stateTrackingId : UUID = UUID()
     
-    public init(action: @escaping () -> (), @ViewBuilder content: () -> [any View]) {
+    public init(action: @escaping () -> (), @ViewBuilder content: () -> some View) {
         self.action = action
-        self.children = content()
-        self.hoverChildren = []
-        self.pressedChildren = []
+        self.content = content()
+        self.hoverContent = nil
+        self.pressedContent = nil
     }
     
     internal init(
         properties: ViewProperties,
         stateTrackingId: UUID,
         action: @escaping () -> (),
-        builtContent: [any View],
-        buildHoverContent: [any View],
-        buildPressedContent: [any View]) {
+        builtContent: some View,
+        buildHoverContent: (any View)?,
+        buildPressedContent: (any View)?) {
             self.properties = properties
-            self.children = builtContent
+            self.content = builtContent
             self.action = action
-            self.hoverChildren = buildHoverContent
-            self.pressedChildren = buildPressedContent
+            self.hoverContent = buildHoverContent
+            self.pressedContent = buildPressedContent
             self.stateTrackingId = stateTrackingId
     }
     

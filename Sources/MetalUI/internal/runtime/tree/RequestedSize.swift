@@ -134,10 +134,18 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
             return simd_float2(sz.x + childSize.footprint.x + hs.spacing, max(childSize.footprint.y, sz.y))
         }) - simd_float2(0.0, hs.spacing)
     }
+    else if let sbv = view as? InteractivityStateBasedView {
+        if let content : any View = builder.getChildrenForState(sbv) {
+            contentSize = getRequestedSize(content, builder: builder).footprint
+        }
+        else {
+            contentSize = .zero
+        }
+    }
     else if let hc = view as? HasChildren {
         // catch all for views that have children but don't size specifically themselves, any views with children that do
         // resize themselves should come before that
-        let children = view is any InteractivityStateBasedView ? builder.getChildrenForState(view as! any InteractivityStateBasedView) : hc.children
+        let children = hc.children
         contentSize = children
             .map({ getRequestedSize($0, builder: builder) })
             .maxSize()
