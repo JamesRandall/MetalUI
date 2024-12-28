@@ -13,27 +13,6 @@ public struct Button : View, HasStateTriggeredContent, InteractivityStateBasedVi
     internal let hoverContent : (any View)?
     internal let pressedContent : (any View)?
     
-    /*internal var children : [any View] {
-        if let group = content as? Group {
-            return group.children
-        }
-        return [content]
-    }
-    
-    internal var hoverChildren : [any View] {
-        if let group = hoverContent as? Group {
-            return group.children
-        }
-        return [content]
-    }
-    
-    internal var pressedChildren : [any View] {
-        if let group = hoverContent as? Group {
-            return group.children
-        }
-        return [content]
-    }*/
-    
     var action : () -> ()
     
     var properties: ViewProperties = ViewProperties.getDefault()

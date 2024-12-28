@@ -122,6 +122,12 @@ func getRequestedSize<V: View>(_ view: V, builder: GuiViewBuilder) -> SizeInform
     else if let image = view as? Image {
         contentSize = builder.getSize(image: image.name, imagePack: image.imagePack, properties: properties)
     }
+    else if let zStack = view as? ZStack {
+        contentSize = zStack.children.reduce(simd_float2(0.0,0.0), { sz,child in
+            let childSize = getRequestedSize(child, builder: builder)
+            return simd_float2(max(childSize.footprint.x, sz.x), max(childSize.footprint.y, sz.y))
+        })
+    }
     else if let vs = view as? VStack {
         contentSize = vs.children.reduce(simd_float2(0.0,0.0), { sz,child in
             let childSize = getRequestedSize(child, builder: builder)

@@ -49,7 +49,7 @@ private final class _AnyViewBox<V: View>: _AnyViewBoxBase {
 public struct AnyView: View {
     private let box: _AnyViewBoxBase
     
-    init<V: View>(_ view: V) {
+    public init<V: View>(_ view: V) {
         self.box = _AnyViewBox(view)
     }
     
